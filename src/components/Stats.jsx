@@ -1,73 +1,103 @@
-import React from 'react';
-import { Droplets, Star, Trophy, ShieldCheck, Sparkles, Waves } from 'lucide-react';
+import React, { useEffect, useRef } from 'react';
+import { motion, useInView, useSpring, useTransform } from 'framer-motion';
+import { CheckCircle2, Calendar, Star, Sparkles } from 'lucide-react';
+import { staggerContainer, scaleIn } from '../utils/animations';
 
 const stats = [
-    { value: '150+', label: 'Projecten Voltooid', icon: Trophy, color: 'text-yellow-400' },
-    { value: '3+', label: 'Jaren Ervaring', icon: Waves, color: 'text-cyan-400' },
-    { value: '4.8', label: 'Gemiddelde Score', icon: Star, color: 'text-orange-400' },
-    { value: '100%', label: 'Bereschoon', icon: Sparkles, color: 'text-white' },
+    { value: 150, suffix: '+', label: 'Projecten Voltooid', icon: CheckCircle2 },
+    { value: 3, suffix: '+', label: 'Jaren Ervaring', icon: Calendar },
+    { value: 4.8, suffix: '', label: 'Gemiddelde Score', icon: Star, decimals: 1 },
+    { value: 100, suffix: '%', label: 'Bereschoon', icon: Sparkles },
 ];
 
-const ClawScratch = ({ className }) => (
-    <svg viewBox="0 0 100 100" className={className} fill="currentColor">
-        <path d="M10,0 Q20,50 10,100 L0,100 Q10,50 0,0 Z" opacity="0.4" />
-        <path d="M30,5 Q40,55 30,105 L20,105 Q30,55 20,5 Z" opacity="0.6" />
-        <path d="M50,0 Q60,50 50,100 L40,100 Q50,50 40,0 Z" opacity="0.5" />
-    </svg>
-);
+// Animated counter component
+const AnimatedCounter = ({ value, suffix = '', decimals = 0, inView }) => {
+    const spring = useSpring(0, { 
+        stiffness: 50, 
+        damping: 20,
+        duration: 2000 
+    });
+    
+    const display = useTransform(spring, (current) => 
+        decimals > 0 ? current.toFixed(decimals) : Math.floor(current)
+    );
+
+    useEffect(() => {
+        if (inView) {
+            spring.set(value);
+        }
+    }, [inView, spring, value]);
+
+    return (
+        <span className="tabular-nums">
+            <motion.span>{display}</motion.span>
+            {suffix}
+        </span>
+    );
+};
 
 const Stats = () => {
+    const ref = useRef(null);
+    const isInView = useInView(ref, { once: true, amount: 0.3 });
+
     return (
-        <section className="bg-gradient-to-br from-cyan-900 via-blue-900 to-slate-900 py-24 text-white border-b border-white/5 relative overflow-hidden">
+        <section className="py-20 bg-secondary text-white relative overflow-hidden">
+            {/* Subtle gradient overlay */}
+            <div className="absolute inset-0 bg-gradient-to-b from-secondary via-secondary to-secondary/95" />
 
-            {/* Pressure Washer Mist / Steam Effect */}
-            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-cyan-400/20 via-transparent to-transparent opacity-60"></div>
-
-            {/* Animated Bubbles */}
-            <div className="absolute inset-0 overflow-hidden pointer-events-none">
-                {[...Array(15)].map((_, i) => (
-                    <div
-                        key={i}
-                        className="animate-bubble absolute bg-white/10 rounded-full border border-white/20 backdrop-blur-sm"
-                        style={{
-                            left: `${Math.random() * 100}%`,
-                            width: `${Math.random() * 40 + 10}px`,
-                            height: `${Math.random() * 40 + 10}px`,
-                            animationDuration: `${Math.random() * 10 + 10}s`,
-                            animationDelay: `${Math.random() * 5}s`
-                        }}
-                    ></div>
-                ))}
-            </div>
-
-            <div className="container mx-auto px-6 relative z-10">
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-12">
+            <div className="container mx-auto px-6 relative z-10" ref={ref}>
+                {/* Stats Grid */}
+                <motion.div 
+                    className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8"
+                    variants={staggerContainer}
+                    initial="hidden"
+                    animate={isInView ? "visible" : "hidden"}
+                >
                     {stats.map((stat, index) => (
-                        <div key={index} className="relative group p-6 rounded-2xl bg-white/5 backdrop-blur-md border border-white/10 hover:bg-white/10 transition-all duration-300 hover-lift hover:shadow-[0_0_30px_rgba(34,211,238,0.2)] text-center">
-
-                            {/* Inner Glow */}
-                            <div className="absolute inset-0 rounded-2xl bg-gradient-to-b from-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-
-                            <div className="relative z-10 flex flex-col items-center">
-                                {/* Icon Bubble */}
-                                <div className="mb-4 relative">
-                                    <div className="absolute inset-0 bg-cyan-500/30 rounded-full blur-xl scale-0 group-hover:scale-150 transition-transform duration-500"></div>
-                                    <div className="w-16 h-16 bg-gradient-to-br from-white/20 to-white/5 rounded-full flex items-center justify-center border border-white/20 group-hover:border-cyan-400/50 transition-colors">
-                                        <stat.icon size={28} className={`${stat.color} drop-shadow-md`} />
+                        <motion.div 
+                            key={index}
+                            variants={scaleIn}
+                            className="relative group text-center"
+                        >
+                            <motion.div 
+                                className="relative p-6 md:p-8"
+                                whileHover={{ y: -4 }}
+                                transition={{ duration: 0.3 }}
+                            >
+                                {/* Icon */}
+                                <motion.div 
+                                    className="mb-4 flex justify-center"
+                                    whileHover={{ scale: 1.1 }}
+                                    transition={{ duration: 0.3 }}
+                                >
+                                    <div className="w-12 h-12 bg-white/10 rounded-full flex items-center justify-center group-hover:bg-primary/20 transition-all duration-300">
+                                        <stat.icon size={22} className="text-primary" />
                                     </div>
-                                    <Droplets size={12} className="absolute -top-1 -right-1 text-cyan-300 opacity-0 group-hover:opacity-100 group-hover:-translate-y-2 transition-all duration-500" />
-                                </div>
+                                </motion.div>
 
-                                <div className="text-4xl md:text-5xl font-black mb-2 tracking-tight text-white drop-shadow-lg">
-                                    {stat.value}
+                                {/* Animated Value */}
+                                <div className="text-4xl md:text-5xl font-bold mb-2 tracking-tight text-white">
+                                    <AnimatedCounter 
+                                        value={stat.value} 
+                                        suffix={stat.suffix}
+                                        decimals={stat.decimals || 0}
+                                        inView={isInView}
+                                    />
                                 </div>
-                                <div className="text-sm md:text-base text-cyan-100/70 font-bold uppercase tracking-widest group-hover:text-cyan-100 transition-colors">
+                                
+                                {/* Label */}
+                                <div className="text-sm md:text-base text-white/70 font-medium">
                                     {stat.label}
                                 </div>
-                            </div>
-                        </div>
+
+                                {/* Subtle divider line on larger screens */}
+                                {index < stats.length - 1 && (
+                                    <div className="hidden md:block absolute right-0 top-1/2 -translate-y-1/2 h-16 w-px bg-white/10" />
+                                )}
+                            </motion.div>
+                        </motion.div>
                     ))}
-                </div>
+                </motion.div>
             </div>
         </section>
     );

@@ -1,11 +1,12 @@
 import React from 'react';
 import ConfiguratorContact from '../components/ConfiguratorContact';
+import PageTransition from '../components/PageTransition';
 
 const Configurator = () => {
     return (
-        <div className="pt-20">
+        <PageTransition className="pt-20">
             <ConfiguratorContact />
-        </div>
+        </PageTransition>
     );
 };
 

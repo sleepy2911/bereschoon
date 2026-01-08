@@ -5,8 +5,10 @@ import { Link, useLocation } from 'react-router-dom';
 const Navbar = () => {
     const [isScrolled, setIsScrolled] = useState(false);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+    const [hasBanner, setHasBanner] = useState(false);
     const location = useLocation();
     const isHome = location.pathname === '/';
+    const isOverOns = location.pathname === '/over-ons';
 
     useEffect(() => {
         const handleScroll = () => {
@@ -16,58 +18,94 @@ const Navbar = () => {
         return () => window.removeEventListener('scroll', handleScroll);
     }, []);
 
-    const scrollToSection = (id) => {
-        setIsMobileMenuOpen(false);
-        if (isHome) {
-            const element = document.getElementById(id);
-            if (element) {
-                element.scrollIntoView({ behavior: 'smooth' });
-            }
-        }
-    };
+    useEffect(() => {
+        // Check if banner is visible
+        const checkBanner = () => {
+            setHasBanner(document.body.classList.contains('has-banner'));
+        };
+        
+        checkBanner();
+        
+        // Watch for class changes
+        const observer = new MutationObserver(checkBanner);
+        observer.observe(document.body, {
+            attributes: true,
+            attributeFilter: ['class']
+        });
+        
+        return () => observer.disconnect();
+    }, []);
 
-    const navLinks = ['Diensten', 'Over Ons', 'Projecten', 'Reviews', 'Winkel'];
+    const navLinks = [
+        { label: 'Over Ons', path: '/over-ons', isAnchor: false },
+        { label: 'Projecten', path: '/projecten', isAnchor: false },
+        { label: 'Reviews', path: '/reviews', isAnchor: false },
+        { label: 'Winkel', path: '/winkel', isAnchor: false },
+    ];
 
     return (
         <nav
-            className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isScrolled || !isHome
+            className={`fixed left-0 right-0 z-50 transition-all duration-300 ${
+                hasBanner ? 'top-[44px]' : 'top-0'
+            } ${isScrolled || (!isHome && !isOverOns)
                 ? 'bg-white/80 backdrop-blur-md shadow-sm py-4'
                 : 'bg-transparent py-6'
                 }`}
+            style={hasBanner ? { marginTop: 0 } : {}}
         >
             <div className="container mx-auto px-6 flex items-center justify-between">
-                <Link to="/" className="flex items-center">
-                    <img src="/images/logo.png" alt="Bereschoon" className="h-20 w-auto object-contain transition-transform hover:scale-105" />
+                <Link 
+                    to="/" 
+                    className="flex items-center relative w-20 h-20"
+                >
+                    <img 
+                        src="/images/logo.png" 
+                        alt="Bereschoon" 
+                        className="w-full h-full object-contain"
+                    />
                 </Link>
 
                 {/* Desktop Menu */}
                 <div className="hidden md:flex items-center space-x-8">
                     {navLinks.map((item) => {
-                        const id = item.toLowerCase().replace(' ', '');
-                        return isHome ? (
-                            <a
-                                key={item}
-                                href={`#${id}`}
-                                className={`text-sm font-medium transition-colors relative group ${isScrolled || !isHome ? 'text-muted-foreground hover:text-foreground' : 'text-white/80 hover:text-white'}`}
-                            >
-                                {item}
-                                <span className="absolute left-0 bottom-[-4px] w-0 h-[2px] bg-primary transition-all duration-300 group-hover:w-full"></span>
-                            </a>
-                        ) : (
-                            <Link
-                                key={item}
-                                to={`/#${id}`}
-                                className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors relative group"
-                            >
-                                {item}
-                                <span className="absolute left-0 bottom-[-4px] w-0 h-[2px] bg-primary transition-all duration-300 group-hover:w-full"></span>
-                            </Link>
-                        );
+                        if (item.isAnchor) {
+                            const id = item.path.replace('/#', '');
+                            return isHome ? (
+                                <a
+                                    key={item.label}
+                                    href={item.path}
+                                    className={`text-sm font-medium transition-colors relative group ${isScrolled || (!isHome && !isOverOns) ? 'text-muted-foreground hover:text-foreground' : 'text-white/80 hover:text-white'}`}
+                                >
+                                    {item.label}
+                                    <span className="absolute left-0 bottom-[-4px] w-0 h-[2px] bg-primary transition-all duration-300 group-hover:w-full"></span>
+                                </a>
+                            ) : (
+                                <Link
+                                    key={item.label}
+                                    to={item.path}
+                                    className={`text-sm font-medium transition-colors relative group ${isScrolled || (!isHome && !isOverOns) ? 'text-muted-foreground hover:text-foreground' : 'text-white/80 hover:text-white'}`}
+                                >
+                                    {item.label}
+                                    <span className="absolute left-0 bottom-[-4px] w-0 h-[2px] bg-primary transition-all duration-300 group-hover:w-full"></span>
+                                </Link>
+                            );
+                        } else {
+                            return (
+                                <Link
+                                    key={item.label}
+                                    to={item.path}
+                                    className={`text-sm font-medium transition-colors relative group ${isScrolled || (!isHome && !isOverOns) ? 'text-muted-foreground hover:text-foreground' : 'text-white/80 hover:text-white'}`}
+                                >
+                                    {item.label}
+                                    <span className="absolute left-0 bottom-[-4px] w-0 h-[2px] bg-primary transition-all duration-300 group-hover:w-full"></span>
+                                </Link>
+                            );
+                        }
                     })}
 
                     <Link
                         to="/configurator"
-                        className={`text-sm font-medium transition-colors relative group ${isScrolled || !isHome ? 'text-muted-foreground hover:text-foreground' : 'text-white/80 hover:text-white'}`}
+                        className={`text-sm font-medium transition-colors relative group ${isScrolled || (!isHome && !isOverOns) ? 'text-muted-foreground hover:text-foreground' : 'text-white/80 hover:text-white'}`}
                     >
                         AI Oprit Scan
                         <span className="absolute left-0 bottom-[-4px] w-0 h-[2px] bg-primary transition-all duration-300 group-hover:w-full"></span>
@@ -95,16 +133,23 @@ const Navbar = () => {
                 <div className="md:hidden absolute top-full left-0 right-0 bg-white border-b border-gray-100 p-6 animate-in slide-in-from-top-5 max-h-[80vh] overflow-y-auto">
                     <div className="flex flex-col space-y-4">
                         {navLinks.map((item) => {
-                            const id = item.toLowerCase().replace(' ', '');
-                            return isHome ? (
-                                <a key={item} href={`#${id}`} className="text-base font-medium text-muted-foreground hover:text-foreground" onClick={() => setIsMobileMenuOpen(false)}>
-                                    {item}
-                                </a>
-                            ) : (
-                                <Link key={item} to={`/#${id}`} className="text-base font-medium text-muted-foreground hover:text-foreground" onClick={() => setIsMobileMenuOpen(false)}>
-                                    {item}
-                                </Link>
-                            );
+                            if (item.isAnchor) {
+                                return isHome ? (
+                                    <a key={item.label} href={item.path} className="text-base font-medium text-muted-foreground hover:text-foreground" onClick={() => setIsMobileMenuOpen(false)}>
+                                        {item.label}
+                                    </a>
+                                ) : (
+                                    <Link key={item.label} to={item.path} className="text-base font-medium text-muted-foreground hover:text-foreground" onClick={() => setIsMobileMenuOpen(false)}>
+                                        {item.label}
+                                    </Link>
+                                );
+                            } else {
+                                return (
+                                    <Link key={item.label} to={item.path} className="text-base font-medium text-muted-foreground hover:text-foreground" onClick={() => setIsMobileMenuOpen(false)}>
+                                        {item.label}
+                                    </Link>
+                                );
+                            }
                         })}
                         <Link to="/configurator" className="text-base font-medium text-muted-foreground hover:text-foreground" onClick={() => setIsMobileMenuOpen(false)}>
                             AI Oprit Scan

@@ -1,0 +1,8 @@
+{
+  "projects": {
+    "default": "bereschoon",
+    "bereschoon": "bereschoon-6d0d9"
+  },
+  "targets": {},
+  "etags": {}
+}

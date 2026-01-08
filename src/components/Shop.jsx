@@ -3,7 +3,7 @@ import { ShoppingBag, ChevronRight, Check } from 'lucide-react';
 
 const Shop = () => {
     return (
-        <section id="winkel" className="py-24 bg-white relative overflow-hidden">
+        <section className="py-24 bg-white relative overflow-hidden">
             {/* Background decorative elements */}
             <div className="absolute top-0 right-0 w-1/3 h-full bg-muted/30 skew-x-12 translate-x-32 z-0"></div>
 
