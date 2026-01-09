@@ -5,12 +5,9 @@ import WaveDivider from './effects/WaveDivider';
 import SprayCleanText from './effects/SprayCleanText';
 import { heroStagger, heroText } from '../utils/animations';
 
+// Hero background: één krachtige actiefoto uit de nieuwe serie
 const heroPairs = [
-    { before: '/images/images_optimized/gevers voor.webp', after: '/images/images_optimized/gevers na.webp' },
-    { before: '/images/images_optimized/hoek 1 voor.webp', after: '/images/images_optimized/hoek 1 na.webp' },
-    { before: '/images/images_optimized/mac voor.webp', after: '/images/images_optimized/mac na.webp' },
-    { before: '/images/images_optimized/rood huis voor.webp', after: '/images/images_optimized/rood huis na.webp' },
-    { before: '/images/images_optimized/villa voor.webp', after: '/images/images_optimized/villa na.webp' }
+    { before: '/images/image00019.webp', after: '/images/image00019.webp' }
 ];
 
 const Hero = () => {
@@ -58,52 +55,18 @@ const Hero = () => {
                 className="absolute inset-0 z-0"
                 style={{ y: backgroundY }}
             >
-                {/* Before Image */}
+                {/* Background Image */}
                 <motion.img
                     src={currentPair.before}
                     alt="Voor"
                     className="absolute inset-0 w-full h-full object-cover"
                     initial={{ opacity: 1, scale: 1 }}
-                    animate={{ 
-                        opacity: showAfter ? 0 : 1,
-                        scale: showAfter ? 1.05 : 1
-                    }}
-                    transition={{ duration: 1.5, ease: "easeInOut" }}
-                />
-
-                {/* After Image */}
-                <motion.img
-                    src={currentPair.after}
-                    alt="Na"
-                    className="absolute inset-0 w-full h-full object-cover"
-                    initial={{ opacity: 0, scale: 1.05 }}
-                    animate={{ 
-                        opacity: showAfter ? 1 : 0,
-                        scale: showAfter ? 1 : 1.05
-                    }}
-                    transition={{ duration: 1.5, ease: "easeInOut" }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ duration: 0.8, ease: "easeOut" }}
                 />
 
                 {/* Gradient Overlay */}
                 <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/30 to-secondary/90 z-10" />
-            </motion.div>
-
-            {/* Subtle Voor/Na indicator */}
-            <motion.div 
-                className="absolute bottom-36 right-8 z-20"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 1 }}
-            >
-                <motion.div 
-                    className={`px-4 py-1.5 rounded-full text-xs font-semibold uppercase tracking-wider transition-all duration-500 ${
-                        showAfter 
-                            ? 'bg-primary text-white' 
-                            : 'bg-white/80 text-secondary'
-                    }`}
-                >
-                    {showAfter ? 'Na' : 'Voor'}
-                </motion.div>
             </motion.div>
 
             {/* Main Content */}
@@ -120,14 +83,14 @@ const Hero = () => {
                     className="relative text-5xl md:text-7xl lg:text-8xl font-bold mb-8 tracking-tighter"
                 >
                     <SprayCleanText
-                        dirtyColor="#78716c"
+                        dirtyColor="#3f2a1d" // Bereschoon bruin als "vieze" basis
                         cleanColor="#ffffff"
                     >
                         Uitzonderlijke
                     </SprayCleanText>
                     <br />
                     <SprayCleanText
-                        dirtyColor="#57534e"
+                        dirtyColor="#3f2a1d" // zelfde bruine startkleur
                         cleanColor="#84CC16"
                     >
                         Schoonmaak.
