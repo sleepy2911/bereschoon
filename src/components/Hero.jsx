@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { ChevronDown, ArrowRight } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import WaveDivider from './effects/WaveDivider';
 import SprayCleanText from './effects/SprayCleanText';
 import { heroStagger, heroText } from '../utils/animations';
@@ -111,15 +112,18 @@ const Hero = () => {
                     variants={heroText}
                     className="flex flex-col sm:flex-row items-center justify-center gap-4"
                 >
-                    <motion.a 
-                        href="#contact" 
-                        className="group bg-primary text-white px-8 py-4 rounded-full text-lg font-bold hover:bg-primary/90 transition-all flex items-center shadow-[0_0_30px_rgba(132,204,22,0.4)] hover:shadow-[0_0_50px_rgba(132,204,22,0.6)] btn-shine"
+                    <motion.div
                         whileHover={{ scale: 1.02, y: -2 }}
                         whileTap={{ scale: 0.98 }}
                     >
-                        Offerte Aanvragen
-                        <ArrowRight size={20} className="ml-2 group-hover:translate-x-1 transition-transform" />
-                    </motion.a>
+                        <Link 
+                            to="/contact"
+                            className="group bg-primary text-white px-8 py-4 rounded-full text-lg font-bold hover:bg-primary/90 transition-all flex items-center shadow-[0_0_30px_rgba(132,204,22,0.4)] hover:shadow-[0_0_50px_rgba(132,204,22,0.6)] btn-shine"
+                        >
+                            Offerte Aanvragen
+                            <ArrowRight size={20} className="ml-2 group-hover:translate-x-1 transition-transform" />
+                        </Link>
+                    </motion.div>
                     <motion.a
                         href="#diensten"
                         className="px-8 py-4 rounded-full text-lg font-medium text-white border-2 border-white/30 hover:bg-white/10 transition-all backdrop-blur-sm hover:border-white/50"

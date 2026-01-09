@@ -2,6 +2,7 @@ import React from 'react';
 import Hero from '../components/Hero';
 import Stats from '../components/Stats';
 import Services from '../components/Services';
+import HomeQuoteSection from '../components/HomeQuoteSection';
 import PageTransition from '../components/PageTransition';
 
 const Home = () => {
@@ -10,6 +11,7 @@ const Home = () => {
             <Hero />
             <Stats />
             <Services />
+            <HomeQuoteSection />
         </PageTransition>
     );
 };

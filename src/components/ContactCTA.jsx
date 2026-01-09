@@ -1,5 +1,6 @@
 import React from 'react';
 import { ArrowRight } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 const ContactCTA = () => {
     return (
@@ -15,9 +16,9 @@ const ContactCTA = () => {
                         </p>
 
                         <div className="flex flex-col sm:flex-row justify-start items-center space-y-4 sm:space-y-0 sm:space-x-6">
-                            <button className="bg-accent text-white px-10 py-5 rounded-full text-lg font-bold hover:bg-accent/90 transition-all transform hover:scale-105 shadow-xl flex items-center">
+                            <Link to="/contact" className="bg-accent text-white px-10 py-5 rounded-full text-lg font-bold hover:bg-accent/90 transition-all transform hover:scale-105 shadow-xl flex items-center">
                                 Offerte Aanvragen <ArrowRight className="ml-2" />
-                            </button>
+                            </Link>
                             <a href="tel:+31612345678" className="text-white text-lg font-medium hover:text-gray-300 transition-colors">
                                 Bel direct: +31 (0)6 1234 5678
                             </a>

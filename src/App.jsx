@@ -6,6 +6,7 @@ import CookieConsent from './components/CookieConsent';
 import Footer from './components/Footer';
 import Home from './pages/Home';
 import Configurator from './pages/Configurator';
+import Contact from './pages/Contact';
 import Projecten from './pages/Projecten';
 import ReviewsPage from './pages/Reviews';
 import Winkel from './pages/Winkel';
@@ -40,6 +41,7 @@ function App() {
             <Routes>
               <Route path="/" element={<Home />} />
               <Route path="/configurator" element={<Configurator />} />
+              <Route path="/contact" element={<Contact />} />
               <Route path="/projecten" element={<Projecten />} />
               <Route path="/reviews" element={<ReviewsPage />} />
               <Route path="/winkel" element={<Winkel />} />

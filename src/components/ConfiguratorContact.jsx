@@ -4,14 +4,18 @@ import { Upload, Camera, Check, ArrowRight, Loader2, Mail, User, Phone, MapPin, 
 const ConfiguratorContact = () => {
     const [step, setStep] = useState(1);
     const [selectedImage, setSelectedImage] = useState(null);
+    const [selectedFile, setSelectedFile] = useState(null); // Store original file for upload
     const [selectedService, setSelectedService] = useState('');
     const [formData, setFormData] = useState({ name: '', email: '', phone: '', address: '' });
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [error, setError] = useState(null);
     const fileInputRef = useRef(null);
 
     const handleImageUpload = (e) => {
         const file = e.target.files[0];
         if (file) {
+            // Store original file for later upload
+            setSelectedFile(file);
             const reader = new FileReader();
             reader.onloadend = () => {
                 setSelectedImage(reader.result);
@@ -33,10 +37,89 @@ const ConfiguratorContact = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         setIsSubmitting(true);
-        // Simulate API call
-        await new Promise(resolve => setTimeout(resolve, 2000));
-        setIsSubmitting(false);
-        setStep(4);
+        setError(null);
+
+        try {
+            // Get edge function URL from environment variable
+            const edgeFunctionUrl = import.meta.env.VITE_SUPABASE_EDGE_FUNCTION_URL;
+            
+            if (!edgeFunctionUrl) {
+                throw new Error('Edge function URL is not configured. Please set VITE_SUPABASE_EDGE_FUNCTION_URL in your .env file.');
+            }
+
+            console.log('Submitting to:', edgeFunctionUrl);
+
+            // Create FormData
+            const formDataToSend = new FormData();
+            formDataToSend.append('name', formData.name);
+            formDataToSend.append('email', formData.email);
+            if (formData.phone) {
+                formDataToSend.append('phone', formData.phone);
+            }
+            if (formData.address) {
+                formDataToSend.append('address', formData.address);
+            }
+            if (selectedService) {
+                formDataToSend.append('service', selectedService);
+            }
+
+            // Handle photo upload
+            // Use original file if available, otherwise convert base64 to File
+            let photoFile = selectedFile;
+            
+            if (!photoFile && selectedImage) {
+                // Convert base64 data URL to File object
+                const base64Data = selectedImage.split(',')[1]; // Remove data:image/...;base64, prefix
+                const mimeType = selectedImage.match(/data:([^;]+);/)?.[1] || 'image/jpeg';
+                const byteCharacters = atob(base64Data);
+                const byteNumbers = new Array(byteCharacters.length);
+                for (let i = 0; i < byteCharacters.length; i++) {
+                    byteNumbers[i] = byteCharacters.charCodeAt(i);
+                }
+                const byteArray = new Uint8Array(byteNumbers);
+                const blob = new Blob([byteArray], { type: mimeType });
+                const fileName = `photo-${Date.now()}.jpg`;
+                photoFile = new File([blob], fileName, { type: mimeType });
+            }
+
+            if (photoFile) {
+                formDataToSend.append('photo', photoFile);
+            } else {
+                throw new Error('Foto is verplicht. Upload een foto in stap 1.');
+            }
+
+            console.log('Sending FormData with:', {
+                name: formData.name,
+                email: formData.email,
+                phone: formData.phone,
+                address: formData.address,
+                service: selectedService,
+                hasPhoto: !!photoFile
+            });
+
+            // Send to Supabase edge function
+            const response = await fetch(edgeFunctionUrl, {
+                method: 'POST',
+                body: formDataToSend,
+            });
+
+            console.log('Response status:', response.status);
+
+            const result = await response.json();
+            console.log('Response data:', result);
+
+            if (!response.ok) {
+                throw new Error(result.error || 'Er is een fout opgetreden bij het verzenden van uw aanvraag.');
+            }
+
+            // Success - move to step 4
+            setStep(4);
+        } catch (err) {
+            console.error('Submission error:', err);
+            setError(err.message || 'Er is een onverwachte fout opgetreden. Probeer het later opnieuw.');
+        } finally {
+            setIsSubmitting(false);
+        }
     };
 
     return (
@@ -122,7 +205,13 @@ const ConfiguratorContact = () => {
                                 </div>
 
                                 <button
-                                    onClick={() => setStep(2)}
+                                    onClick={() => {
+                                        setStep(2);
+                                        // Reset file input if user skips
+                                        if (fileInputRef.current) {
+                                            fileInputRef.current.value = '';
+                                        }
+                                    }}
                                     className="mt-8 text-sm text-stone-400 hover:text-white underline text-center"
                                 >
                                     Sla deze stap over
@@ -171,10 +260,16 @@ const ConfiguratorContact = () => {
                                 </p>
 
                                 <form onSubmit={handleSubmit} className="space-y-4">
+                                    {error && (
+                                        <div className="bg-red-500/10 border border-red-500/50 rounded-xl p-4 text-red-300 text-sm">
+                                            {error}
+                                        </div>
+                                    )}
                                     <div className="relative">
                                         <User className="absolute left-4 top-1/2 -translate-y-1/2 text-stone-400" size={18} />
                                         <input
                                             type="text" name="name" placeholder="Uw Naam" required
+                                            value={formData.name}
                                             onChange={handleInputChange}
                                             className="w-full bg-white/5 border border-white/10 rounded-xl py-4 pl-12 pr-4 text-white placeholder-stone-500 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all"
                                         />
@@ -183,6 +278,7 @@ const ConfiguratorContact = () => {
                                         <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-stone-400" size={18} />
                                         <input
                                             type="email" name="email" placeholder="E-mailadres" required
+                                            value={formData.email}
                                             onChange={handleInputChange}
                                             className="w-full bg-white/5 border border-white/10 rounded-xl py-4 pl-12 pr-4 text-white placeholder-stone-500 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all"
                                         />
@@ -191,6 +287,16 @@ const ConfiguratorContact = () => {
                                         <Phone className="absolute left-4 top-1/2 -translate-y-1/2 text-stone-400" size={18} />
                                         <input
                                             type="tel" name="phone" placeholder="Telefoonnummer (optioneel)"
+                                            value={formData.phone}
+                                            onChange={handleInputChange}
+                                            className="w-full bg-white/5 border border-white/10 rounded-xl py-4 pl-12 pr-4 text-white placeholder-stone-500 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all"
+                                        />
+                                    </div>
+                                    <div className="relative">
+                                        <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 text-stone-400" size={18} />
+                                        <input
+                                            type="text" name="address" placeholder="Adres (optioneel)"
+                                            value={formData.address}
                                             onChange={handleInputChange}
                                             className="w-full bg-white/5 border border-white/10 rounded-xl py-4 pl-12 pr-4 text-white placeholder-stone-500 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all"
                                         />
@@ -199,7 +305,7 @@ const ConfiguratorContact = () => {
                                     <button
                                         type="submit"
                                         disabled={isSubmitting}
-                                        className="w-full bg-primary text-white py-4 rounded-xl font-bold hover:bg-primary/90 transition-all shadow-lg hover:shadow-primary/40 mt-4 flex items-center justify-center btn-shine"
+                                        className="w-full bg-primary text-white py-4 rounded-xl font-bold hover:bg-primary/90 transition-all shadow-lg hover:shadow-primary/40 mt-4 flex items-center justify-center btn-shine disabled:opacity-50 disabled:cursor-not-allowed"
                                     >
                                         {isSubmitting ? (
                                             <Loader2 size={24} className="animate-spin" />
@@ -227,7 +333,18 @@ const ConfiguratorContact = () => {
                                     Bedankt {formData.name}. We hebben uw gegevens en foto ontvangen. U ontvangt binnen 24 uur een vrijblijvende offerte en voorbeeldfoto in uw mailbox.
                                 </p>
                                 <button
-                                    onClick={() => { setStep(1); setSelectedImage(null); }}
+                                    onClick={() => { 
+                                        setStep(1); 
+                                        setSelectedImage(null); 
+                                        setSelectedFile(null);
+                                        setSelectedService('');
+                                        setFormData({ name: '', email: '', phone: '', address: '' });
+                                        setError(null);
+                                        // Reset file input
+                                        if (fileInputRef.current) {
+                                            fileInputRef.current.value = '';
+                                        }
+                                    }}
                                     className="px-8 py-3 rounded-xl border border-white/20 hover:bg-white/10 transition-colors"
                                 >
                                     Nieuwe aanvraag starten

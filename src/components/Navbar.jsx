@@ -115,7 +115,7 @@ const Navbar = () => {
                     </Link>
 
                     <Link
-                        to="/configurator"
+                        to="/contact"
                         className="bg-primary text-white px-5 py-2.5 rounded-full text-sm font-bold hover:bg-primary/90 transition-all shadow-lg hover:shadow-primary/50"
                     >
                         Offerte Aanvragen
@@ -157,7 +157,7 @@ const Navbar = () => {
                         <Link to="/configurator" className="text-base font-medium text-muted-foreground hover:text-foreground" onClick={() => setIsMobileMenuOpen(false)}>
                             AI Oprit Scan
                         </Link>
-                        <Link to="/configurator" className="bg-primary text-white px-5 py-3 rounded-full text-base font-medium w-full text-center" onClick={() => setIsMobileMenuOpen(false)}>
+                        <Link to="/contact" className="bg-primary text-white px-5 py-3 rounded-full text-base font-medium w-full text-center" onClick={() => setIsMobileMenuOpen(false)}>
                             Offerte Aanvragen
                         </Link>
                     </div>

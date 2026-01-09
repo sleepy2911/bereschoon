@@ -166,7 +166,7 @@ const OverOns = () => {
                                 className="flex flex-wrap gap-4 mb-8"
                             >
                                 <a 
-                                    href="/configurator" 
+                                    href="/contact" 
                                     className="inline-flex items-center gap-2 bg-primary text-white px-6 py-3 rounded-full font-semibold hover:bg-primary/90 transition-all shadow-lg shadow-primary/30"
                                 >
                                     Offerte Aanvragen
@@ -368,7 +368,7 @@ const OverOns = () => {
                             Vraag vrijblijvend een offerte aan. En wie weet staat Bereschoon binnenkort bij u op de oprit!
                         </p>
                         <a 
-                            href="/configurator"
+                            href="/contact"
                             className="inline-flex items-center gap-2 bg-primary text-white px-8 py-4 rounded-full text-lg font-bold hover:bg-primary/90 transition-all shadow-lg shadow-primary/30"
                         >
                             Offerte Aanvragen
