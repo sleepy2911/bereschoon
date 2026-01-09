@@ -9,9 +9,12 @@ const Navbar = () => {
     const location = useLocation();
     const isHome = location.pathname === '/';
     const isOverOns = location.pathname === '/over-ons';
+    const isOpritTerrasTerrein = location.pathname === '/oprit-terras-terrein';
+    const isGevelreiniging = location.pathname === '/gevelreiniging';
+    const isOnkruidbeheersing = location.pathname === '/onkruidbeheersing';
     
     // Pages that should have white text when navbar is transparent (pages with hero sections)
-    const hasHeroSection = isHome || isOverOns;
+    const hasHeroSection = isHome || isOverOns || isOpritTerrasTerrein || isGevelreiniging || isOnkruidbeheersing;
 
     useEffect(() => {
         const handleScroll = () => {
@@ -42,7 +45,6 @@ const Navbar = () => {
     const navLinks = [
         { label: 'Over Ons', path: '/over-ons', isAnchor: false },
         { label: 'Projecten', path: '/projecten', isAnchor: false },
-        { label: 'Reviews', path: '/reviews', isAnchor: false },
         { label: 'Winkel', path: '/winkel', isAnchor: false },
     ];
 

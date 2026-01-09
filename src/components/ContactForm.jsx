@@ -1,9 +1,9 @@
 import React, { useState, useRef } from 'react';
 import { ArrowRight, ArrowLeft, Check, Loader2, Mail, Grid3X3, Home, Droplets, Leaf, Upload, X, Camera } from 'lucide-react';
 
-const ContactForm = () => {
-    const [step, setStep] = useState(1);
-    const [selectedService, setSelectedService] = useState('');
+const ContactForm = ({ preselectedService = null }) => {
+    const [step, setStep] = useState(preselectedService ? 2 : 1);
+    const [selectedService, setSelectedService] = useState(preselectedService || '');
     const [selectedOptions, setSelectedOptions] = useState([]); // For multi-select options
     const [selectedPlan, setSelectedPlan] = useState(''); // For onkruidbeheersing plan
     const [photos, setPhotos] = useState([]);
@@ -321,18 +321,22 @@ const ContactForm = () => {
         );
     }
 
+    // When service is preselected, show 4 steps (2-5 become 1-4 visually)
+    const totalSteps = preselectedService ? 4 : 5;
+    const displayStep = preselectedService ? step - 1 : step;
+
     return (
         <div className="bg-white rounded-xl p-8 shadow-lg">
             <h2 className="text-3xl font-bold text-foreground mb-2">Keuzehulp</h2>
-            <p className="text-muted-foreground mb-6">Stap {step} van 5</p>
+            <p className="text-muted-foreground mb-6">Stap {displayStep} van {totalSteps}</p>
 
             {/* Progress Bar */}
             <div className="flex space-x-2 mb-8">
-                {[1, 2, 3, 4, 5].map((s) => (
+                {Array.from({ length: totalSteps }, (_, i) => i + 1).map((s) => (
                     <div
                         key={s}
                         className={`h-2 flex-1 rounded-full transition-all duration-500 ${
-                            s <= step ? 'bg-primary' : 'bg-gray-200'
+                            s <= displayStep ? 'bg-primary' : 'bg-gray-200'
                         }`}
                     />
                 ))}

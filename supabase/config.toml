@@ -399,3 +399,15 @@ enabled = true
 verify_jwt = false
 import_map = "./functions/submit-service-request/deno.json"
 entrypoint = "./functions/submit-service-request/index.ts"
+
+[functions.create-payment]
+enabled = true
+verify_jwt = false
+import_map = "./functions/create-payment/deno.json"
+entrypoint = "./functions/create-payment/index.ts"
+
+[functions.mollie-webhook]
+enabled = true
+verify_jwt = false
+import_map = "./functions/mollie-webhook/deno.json"
+entrypoint = "./functions/mollie-webhook/index.ts"

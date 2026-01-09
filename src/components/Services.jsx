@@ -2,6 +2,7 @@
 import React, { useRef, useState } from 'react';
 import { motion, useInView, AnimatePresence } from 'framer-motion';
 import { ArrowUpRight, ArrowRight, Home, Droplets, Grid3X3 } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { staggerContainer, fadeInUp, fadeInLeft, viewportSettings } from '../utils/animations';
 import { CurvedDivider } from './effects/WaveDivider';
 
@@ -35,11 +36,12 @@ const PressureWashIcon = ({ size = 24, className = '' }) => (
 
 const services = [
     {
-        title: 'Dakreiniging',
-        description: 'Verleng de levensduur van uw dak met onze milde softwash behandeling. Veilig en effectief.',
-        image: '/images/images_optimized/IMG_3041.webp',
-        icon: Home,
-        features: ['Softwash techniek', 'Dakcoating mogelijk', 'Alle daktypen'],
+        title: 'Oprit, Terras & Terrein',
+        description: 'Verwijder hardnekkig vuil, groene aanslag en onkruid. Langdurig resultaat gegarandeerd.',
+        image: '/images/images_optimized/IMG_3251.webp',
+        icon: Grid3X3,
+        features: ['Hogedruk reiniging', 'Voegen herstellen', 'Beschermlaag'],
+        route: '/oprit-terras-terrein',
     },
     {
         title: 'Gevelreiniging',
@@ -47,13 +49,15 @@ const services = [
         image: '/images/images_optimized/IMG_2566.webp',
         icon: Droplets,
         features: ['Hogedruk reiniging', 'Stoomreiniging', 'Impregneren'],
+        route: '/gevelreiniging',
     },
     {
-        title: 'Terras & Bestrating',
-        description: 'Onkruidvrij en schoon terras zonder schade aan uw voegen. Langdurig resultaat gegarandeerd.',
-        image: '/images/images_optimized/IMG_3251.webp',
-        icon: Grid3X3,
-        features: ['Onkruidverwijdering', 'Voegen herstellen', 'Beschermlaag'],
+        title: 'Onkruidbeheersing',
+        description: 'Houd uw tuin en terras onkruidvrij met onze flexibele onderhoudsplannen.',
+        image: '/images/images_optimized/onkruid tuin voor.webp',
+        icon: Home,
+        features: ['Flexibele plannen', 'Preventief onderhoud', 'Milieuvriendelijk'],
+        route: '/onkruidbeheersing',
     },
 ];
 
@@ -211,16 +215,18 @@ const ServiceCard = ({ service, index }) => {
                     </ul>
 
                     {/* Meer info button with spray trigger */}
-                    <motion.button 
-                        className="text-primary font-semibold flex items-center relative overflow-hidden px-3 py-1.5 -ml-3 rounded-lg hover:bg-primary/5 transition-colors"
-                        onMouseEnter={handleButtonHover}
-                        onMouseLeave={() => setIsButtonHovered(false)}
-                        whileHover={{ x: 3 }}
-                    >
-                        <PressureWashIcon size={16} className="mr-2 opacity-70" />
-                        Meer info 
-                        <ArrowRight size={16} className="ml-1 group-hover/btn:translate-x-1 transition-transform" />
-                    </motion.button>
+                    <Link to={service.route}>
+                        <motion.div 
+                            className="text-primary font-semibold flex items-center relative overflow-hidden px-3 py-1.5 -ml-3 rounded-lg hover:bg-primary/5 transition-colors"
+                            onMouseEnter={handleButtonHover}
+                            onMouseLeave={() => setIsButtonHovered(false)}
+                            whileHover={{ x: 3 }}
+                        >
+                            <PressureWashIcon size={16} className="mr-2 opacity-70" />
+                            Meer info 
+                            <ArrowRight size={16} className="ml-1 group-hover/btn:translate-x-1 transition-transform" />
+                        </motion.div>
+                    </Link>
                 </div>
             </motion.div>
         </motion.div>
@@ -259,14 +265,15 @@ const Services = () => {
                         </p>
                     </motion.div>
 
-                    <motion.a 
-                        href="#" 
-                        className="hidden md:flex items-center text-lg font-medium hover:text-primary transition-colors mt-6 md:mt-0 group"
-                        whileHover={{ x: 5 }}
-                    >
-                        Bekijk alle diensten 
-                        <ArrowUpRight className="ml-2 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" size={20} />
-                    </motion.a>
+                    <Link to="/contact">
+                        <motion.div 
+                            className="hidden md:flex items-center text-lg font-medium hover:text-primary transition-colors mt-6 md:mt-0 group"
+                            whileHover={{ x: 5 }}
+                        >
+                            Offerte aanvragen 
+                            <ArrowUpRight className="ml-2 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" size={20} />
+                        </motion.div>
+                    </Link>
                 </motion.div>
 
                 {/* Services Grid */}
@@ -288,9 +295,9 @@ const Services = () => {
                     animate={isInView ? { opacity: 1 } : {}}
                     transition={{ delay: 0.5 }}
                 >
-                    <a href="#" className="inline-flex items-center text-lg font-medium hover:text-primary transition-colors">
-                        Bekijk alle diensten <ArrowUpRight className="ml-2" size={20} />
-                    </a>
+                    <Link to="/contact" className="inline-flex items-center text-lg font-medium hover:text-primary transition-colors">
+                        Offerte aanvragen <ArrowUpRight className="ml-2" size={20} />
+                    </Link>
                 </motion.div>
             </div>
         </section>
