@@ -135,34 +135,213 @@ https://abcdefghijklmnop.supabase.co/functions/v1/mollie-webhook
 
 ---
 
-## 6. Testen
+## 6. Testen met Nep Geld (Test Modus)
 
-### 6.1 Test Modus
+### 6.1 Test API Key Instellen
 
-Zolang je de `test_` API key gebruikt, worden betalingen gesimuleerd.
+**Belangrijk**: Zorg dat je de **Test API Key** gebruikt (begint met `test_`), niet de Live key!
 
-### 6.2 Test Betaling Maken
+1. Log in op [https://my.mollie.com](https://my.mollie.com)
+2. Ga naar **Developers** → **API-sleutels**
+3. Kopieer de **Test API key** (begint met `test_`)
+4. Stel deze in als Supabase secret:
 
-1. Ga naar je webshop (`/winkel`)
-2. Voeg een product toe aan je winkelmandje
-3. Ga naar checkout
-4. Vul je gegevens in en klik op **Betalen**
-5. Je wordt doorgestuurd naar de Mollie test omgeving
+```bash
+npx supabase secrets set MOLLIE_API_KEY=test_xxxxxxxxxxxxxxxxxxxxxxxx
+```
 
-### 6.3 Test Betaalstatussen
+5. Zorg dat `SITE_URL` is ingesteld (voor lokale ontwikkeling):
 
-In de Mollie test omgeving kun je kiezen:
-- **Betaald** → Simuleert succesvolle betaling
-- **Geannuleerd** → Simuleert geannuleerde betaling
-- **Verlopen** → Simuleert verlopen betaling
-- **Mislukt** → Simuleert mislukte betaling
+```bash
+# Voor lokale ontwikkeling
+npx supabase secrets set SITE_URL=http://localhost:5173
 
-### 6.4 Controleren
+# Of voor staging/productie
+npx supabase secrets set SITE_URL=https://bereschoon.nl
+```
 
-Na een testbetaling:
-1. Check de order status in je admin panel (`/winkel/admin/bestellingen`)
-2. Check de Supabase database (orders tabel)
-3. Check de Mollie dashboard voor de betaling
+6. Deploy de Edge Functions opnieuw:
+
+```bash
+npx supabase functions deploy create-payment
+npx supabase functions deploy mollie-webhook
+```
+
+### 6.2 Volledige Test Flow
+
+#### Stap 1: Product toevoegen aan winkelmandje
+
+1. Ga naar `http://localhost:5173/winkel`
+2. Klik op **"In Winkelmandje"** bij een product
+3. Het winkelmandje opent automatisch
+
+#### Stap 2: Naar checkout gaan
+
+1. Klik op **"Winkelmandje"** rechtsboven (of gebruik de knop in het winkelmandje)
+2. Klik op **"Afrekenen"** of ga direct naar `/winkel/checkout`
+
+#### Stap 3: Gegevens invullen
+
+Vul de checkout formulier in:
+- **E-mail**: Gebruik een test e-mail (bijv. `test@example.com`)
+- **Naam**: Test Naam
+- **Adres**: Test adres (bijv. `Teststraat 1, 1234 AB Amsterdam`)
+- **Land**: Selecteer Nederland, België of Luxemburg
+
+> 💡 **Tip**: Je kunt ook eerst een account aanmaken via `/winkel/account` om je gegevens automatisch in te vullen.
+
+#### Stap 4: Betalen
+
+1. Klik op **"Betalen - €XX.XX"**
+2. Je wordt doorgestuurd naar de **Mollie Test Omgeving**
+
+### 6.3 Mollie Test Omgeving - Betaalstatussen Simuleren
+
+In de Mollie test omgeving zie je verschillende opties om de betaling te simuleren:
+
+#### ✅ Succesvolle Betaling (Betaald)
+
+1. Kies **"Betaald"** of **"Paid"**
+2. Je wordt doorgestuurd naar `/winkel/betaling-succes`
+3. De order status wordt automatisch bijgewerkt naar `paid` via de webhook
+4. Check in je admin panel of de order correct is opgeslagen
+
+#### ❌ Geannuleerde Betaling
+
+1. Kies **"Geannuleerd"** of **"Cancelled"**
+2. Je wordt doorgestuurd naar `/winkel/betaling-mislukt`
+3. De order blijft in status `pending` of wordt `cancelled`
+
+#### ⏱️ Verlopen Betaling
+
+1. Kies **"Verlopen"** of **"Expired"**
+2. Je wordt doorgestuurd naar `/winkel/betaling-mislukt`
+3. De order status wordt `failed`
+
+#### ❌ Mislukte Betaling
+
+1. Kies **"Mislukt"** of **"Failed"**
+2. Je wordt doorgestuurd naar `/winkel/betaling-mislukt`
+3. De order status wordt `failed`
+
+### 6.4 Test Betaalmethoden
+
+In test modus kun je alle betaalmethoden testen:
+
+#### iDEAL Test
+
+1. Kies **iDEAL** als betaalmethode
+2. Selecteer een test bank (bijv. "Test Issuer")
+3. Kies een betaalstatus (Betaald/Geannuleerd/etc.)
+4. De betaling wordt gesimuleerd
+
+#### Bancontact Test
+
+1. Kies **Bancontact** als betaalmethode
+2. Volg de test flow
+3. Kies een betaalstatus
+
+#### Creditcard Test
+
+1. Kies **Creditcard** als betaalmethode
+2. Gebruik test creditcard nummers:
+   - **Visa**: `4111111111111111`
+   - **Mastercard**: `5555555555554444`
+   - **American Express**: `378282246310005`
+3. Gebruik een willekeurige toekomstige vervaldatum (bijv. `12/25`)
+4. Gebruik een willekeurige CVC (bijv. `123`)
+5. Kies een betaalstatus
+
+> 📚 **Meer test nummers**: Zie [Mollie Test Cards](https://docs.mollie.com/overview/testing#test-card-numbers)
+
+### 6.5 Controleren of Alles Werkt
+
+#### Check 1: Order in Database
+
+1. Ga naar je Supabase Dashboard
+2. Open de **Table Editor**
+3. Bekijk de `orders` tabel
+4. Controleer:
+   - ✅ Order is aangemaakt
+   - ✅ `payment_id` is ingevuld
+   - ✅ `status` is correct (bijv. `paid` na succesvolle betaling)
+   - ✅ `total`, `subtotal`, `shipping_cost` zijn correct
+
+#### Check 2: Order Items
+
+1. Bekijk de `order_items` tabel
+2. Controleer:
+   - ✅ Alle producten zijn opgeslagen
+   - ✅ `quantity` en `price_at_purchase` zijn correct
+
+#### Check 3: Mollie Dashboard
+
+1. Ga naar [https://my.mollie.com](https://my.mollie.com)
+2. Ga naar **Payments**
+3. Je ziet alle testbetalingen
+4. Controleer de status en details
+
+#### Check 4: Webhook Logs
+
+1. Ga naar Supabase Dashboard → **Edge Functions** → **Logs**
+2. Selecteer `mollie-webhook`
+3. Controleer of webhooks zijn ontvangen en verwerkt
+
+#### Check 5: Admin Panel
+
+1. Ga naar `/winkel/admin` (als je admin bent)
+2. Bekijk de bestellingen
+3. Controleer of alles correct wordt weergegeven
+
+### 6.6 Test Scenario's
+
+Test de volgende scenario's:
+
+#### Scenario 1: Succesvolle Bestelling
+- [ ] Product toevoegen
+- [ ] Checkout voltooien
+- [ ] Betaling succesvol simuleren
+- [ ] Order status is `paid`
+- [ ] Webhook is ontvangen
+- [ ] Email bevestiging (als geïmplementeerd)
+
+#### Scenario 2: Geannuleerde Betaling
+- [ ] Betaling annuleren in Mollie
+- [ ] Terugkeren naar `/winkel/betaling-mislukt`
+- [ ] Order blijft in `pending` of wordt `cancelled`
+- [ ] Producten zijn niet uit voorraad gehaald
+
+#### Scenario 3: Gratis Verzending
+- [ ] Bestelling boven €50
+- [ ] Verzendkosten zijn €0.00
+- [ ] Correct weergegeven in checkout
+
+#### Scenario 4: Meerdere Producten
+- [ ] Meerdere producten toevoegen
+- [ ] Verschillende hoeveelheden
+- [ ] Totaal is correct berekend
+
+#### Scenario 5: Account vs Gast
+- [ ] Bestellen zonder account
+- [ ] Bestellen met account
+- [ ] Order wordt gekoppeld aan account (als ingelogd)
+
+### 6.7 Lokale Webhook Testen (Geavanceerd)
+
+Voor lokale webhook testing heb je een tool zoals **ngrok** nodig:
+
+1. Installeer ngrok: [https://ngrok.com](https://ngrok.com)
+2. Start ngrok tunnel:
+```bash
+ngrok http 54321
+```
+3. Kopieer de HTTPS URL (bijv. `https://abc123.ngrok.io`)
+4. Stel webhook in Mollie in op:
+```
+https://abc123.ngrok.io/functions/v1/mollie-webhook
+```
+
+> ⚠️ **Let op**: Voor productie gebruik je de Supabase URL direct, geen ngrok nodig!
 
 ---
 

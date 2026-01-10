@@ -119,27 +119,6 @@ const AccountSettings = () => {
 
   return (
     <PageTransition className="pt-24">
-      {/* Breadcrumbs */}
-      <div className="bg-white border-b sticky top-[72px] z-40">
-        <div className="container mx-auto px-6 py-3">
-          <nav className="flex items-center gap-2 text-sm">
-            <Link to="/" className="text-gray-500 hover:text-primary transition-colors">
-              Home
-            </Link>
-            <ChevronRight className="w-4 h-4 text-gray-300" />
-            <Link to="/winkel" className="text-gray-500 hover:text-primary transition-colors">
-              Shop
-            </Link>
-            <ChevronRight className="w-4 h-4 text-gray-300" />
-            <Link to="/winkel/account" className="text-gray-500 hover:text-primary transition-colors">
-              Account
-            </Link>
-            <ChevronRight className="w-4 h-4 text-gray-300" />
-            <span className="text-gray-900 font-medium">Instellingen</span>
-          </nav>
-        </div>
-      </div>
-
       <div className="min-h-screen bg-gray-50 py-12">
         <div className="container mx-auto px-6">
           <div className="max-w-2xl mx-auto">

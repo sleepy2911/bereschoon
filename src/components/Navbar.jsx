@@ -1,17 +1,25 @@
 import React, { useState, useEffect } from 'react';
-import { Menu, X } from 'lucide-react';
+import { Menu, X, ShoppingBag, User } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
+import { useCartStore } from '../stores/cartStore';
+import NotificationBell from './shop/NotificationBell';
 
 const Navbar = () => {
     const [isScrolled, setIsScrolled] = useState(false);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [hasBanner, setHasBanner] = useState(false);
     const location = useLocation();
+    const { user } = useAuth();
+    const { items, openCart } = useCartStore();
+    const itemCount = items.reduce((sum, item) => sum + item.quantity, 0);
+    
     const isHome = location.pathname === '/';
     const isOverOns = location.pathname === '/over-ons';
     const isOpritTerrasTerrein = location.pathname === '/oprit-terras-terrein';
     const isGevelreiniging = location.pathname === '/gevelreiniging';
     const isOnkruidbeheersing = location.pathname === '/onkruidbeheersing';
+    const isShopPage = location.pathname.startsWith('/winkel');
     
     // Pages that should have white text when navbar is transparent (pages with hero sections)
     const hasHeroSection = isHome || isOverOns || isOpritTerrasTerrein || isGevelreiniging || isOnkruidbeheersing;
@@ -122,6 +130,43 @@ const Navbar = () => {
                     >
                         Offerte Aanvragen
                     </Link>
+
+                    {/* Shop icons - only show on shop pages or when user is logged in */}
+                    {(isShopPage || user) && (
+                        <div className="flex items-center gap-2 ml-2 pl-4 border-l border-gray-200">
+                            {/* Notification Bell - only for logged in users */}
+                            {user && <NotificationBell />}
+                            
+                            {/* Account Link */}
+                            <Link
+                                to="/winkel/account"
+                                className={`p-2 rounded-full transition-colors ${
+                                    isScrolled ? 'text-gray-600 hover:text-primary hover:bg-gray-100' : 
+                                    hasHeroSection ? 'text-white/80 hover:text-white hover:bg-white/10' : 
+                                    'text-gray-600 hover:text-primary hover:bg-gray-100'
+                                }`}
+                            >
+                                <User className="w-5 h-5" />
+                            </Link>
+                            
+                            {/* Cart Button */}
+                            <button
+                                onClick={openCart}
+                                className={`p-2 rounded-full transition-colors relative ${
+                                    isScrolled ? 'text-gray-600 hover:text-primary hover:bg-gray-100' : 
+                                    hasHeroSection ? 'text-white/80 hover:text-white hover:bg-white/10' : 
+                                    'text-gray-600 hover:text-primary hover:bg-gray-100'
+                                }`}
+                            >
+                                <ShoppingBag className="w-5 h-5" />
+                                {itemCount > 0 && (
+                                    <span className="absolute -top-1 -right-1 bg-primary text-white text-xs w-5 h-5 rounded-full flex items-center justify-center font-bold">
+                                        {itemCount > 9 ? '9+' : itemCount}
+                                    </span>
+                                )}
+                            </button>
+                        </div>
+                    )}
                 </div>
 
                 {/* Mobile Menu Button */}

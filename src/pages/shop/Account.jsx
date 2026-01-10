@@ -1,16 +1,30 @@
-import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { Link, useNavigate, useLocation, useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { 
   User, Package, Settings, LogOut, Mail, Lock, ChevronRight,
-  Eye, EyeOff, Loader2, AlertCircle, CheckCircle
+  Eye, EyeOff, Loader2, AlertCircle, CheckCircle, Bell
 } from 'lucide-react';
 import PageTransition from '../../components/PageTransition';
 import { useAuth } from '../../context/AuthContext';
+import { useNotifications } from '../../context/NotificationContext';
 
 const Account = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const [searchParams] = useSearchParams();
   const { user, profile, loading: authLoading, signIn, signUp, signOut, resetPassword } = useAuth();
+  const { unreadCount } = useNotifications();
+  
+  // Get redirect URL from query params or location state
+  const redirectUrl = searchParams.get('redirect') || location.state?.from || null;
+
+  // If user is already logged in and there's a redirect, navigate immediately
+  useEffect(() => {
+    if (user && redirectUrl && !authLoading) {
+      navigate(redirectUrl);
+    }
+  }, [user, redirectUrl, authLoading, navigate]);
   const [mode, setMode] = useState('login'); // login, register, forgot
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -41,7 +55,8 @@ const Account = () => {
     try {
       if (mode === 'login') {
         await signIn(formData.email, formData.password);
-        navigate('/winkel/account');
+        // Navigate to redirect URL if provided, otherwise to account page
+        navigate(redirectUrl || '/winkel/account');
       } else if (mode === 'register') {
         if (formData.password !== formData.confirmPassword) {
           throw new Error('Wachtwoorden komen niet overeen');
@@ -87,23 +102,6 @@ const Account = () => {
   if (user) {
     return (
       <PageTransition className="pt-24">
-        {/* Breadcrumbs */}
-        <div className="bg-white border-b sticky top-[72px] z-40">
-          <div className="container mx-auto px-6 py-3">
-            <nav className="flex items-center gap-2 text-sm">
-              <Link to="/" className="text-gray-500 hover:text-primary transition-colors">
-                Home
-              </Link>
-              <ChevronRight className="w-4 h-4 text-gray-300" />
-              <Link to="/winkel" className="text-gray-500 hover:text-primary transition-colors">
-                Shop
-              </Link>
-              <ChevronRight className="w-4 h-4 text-gray-300" />
-              <span className="text-gray-900 font-medium">Mijn Account</span>
-            </nav>
-          </div>
-        </div>
-
         <div className="min-h-screen bg-gray-50 py-12">
           <div className="container mx-auto px-6">
             <div className="max-w-4xl mx-auto">
@@ -122,7 +120,7 @@ const Account = () => {
                   </div>
                 </div>
 
-                <div className="grid md:grid-cols-3 gap-4">
+                <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
                   <Link
                     to="/winkel/account/bestellingen"
                     className="flex items-center gap-3 p-4 bg-gray-50 rounded-xl hover:bg-primary/5 hover:text-primary transition-colors group"
@@ -132,6 +130,22 @@ const Account = () => {
                       <p className="font-medium">Mijn Bestellingen</p>
                       <p className="text-sm text-gray-500">Bekijk je bestelgeschiedenis</p>
                     </div>
+                  </Link>
+
+                  <Link
+                    to="/winkel/account/meldingen"
+                    className="flex items-center gap-3 p-4 bg-gray-50 rounded-xl hover:bg-primary/5 hover:text-primary transition-colors group relative"
+                  >
+                    <Bell className="w-6 h-6 group-hover:text-primary" />
+                    <div>
+                      <p className="font-medium">Meldingen</p>
+                      <p className="text-sm text-gray-500">Updates over je orders</p>
+                    </div>
+                    {unreadCount > 0 && (
+                      <span className="absolute top-3 right-3 bg-primary text-white text-xs font-bold w-5 h-5 rounded-full flex items-center justify-center">
+                        {unreadCount > 9 ? '9+' : unreadCount}
+                      </span>
+                    )}
                   </Link>
 
                   <Link
@@ -174,25 +188,6 @@ const Account = () => {
   // Login/Register view
   return (
     <PageTransition className="pt-24">
-      {/* Breadcrumbs */}
-      <div className="bg-white border-b sticky top-[72px] z-40">
-        <div className="container mx-auto px-6 py-3">
-          <nav className="flex items-center gap-2 text-sm">
-            <Link to="/" className="text-gray-500 hover:text-primary transition-colors">
-              Home
-            </Link>
-            <ChevronRight className="w-4 h-4 text-gray-300" />
-            <Link to="/winkel" className="text-gray-500 hover:text-primary transition-colors">
-              Shop
-            </Link>
-            <ChevronRight className="w-4 h-4 text-gray-300" />
-            <span className="text-gray-900 font-medium">
-              {mode === 'login' ? 'Inloggen' : mode === 'register' ? 'Registreren' : 'Wachtwoord vergeten'}
-            </span>
-          </nav>
-        </div>
-      </div>
-
       <div className="min-h-screen bg-gray-50 py-12">
         <div className="container mx-auto px-6">
           <div className="max-w-md mx-auto">

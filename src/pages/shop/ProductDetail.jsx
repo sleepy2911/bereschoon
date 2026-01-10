@@ -1,18 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, Link, useNavigate } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   ShoppingBag, Check, Minus, Plus, 
   ChevronLeft, ChevronRight, Play, Truck, Shield, Clock,
-  Loader2
+  Loader2, ArrowLeft
 } from 'lucide-react';
 import PageTransition from '../../components/PageTransition';
-import { supabase } from '../../lib/supabase';
 import { useCartStore } from '../../stores/cartStore';
 
 const ProductDetail = () => {
   const { slug } = useParams();
-  const navigate = useNavigate();
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -29,17 +27,29 @@ const ProductDetail = () => {
   const fetchProduct = async () => {
     try {
       setLoading(true);
-      const { data, error } = await supabase
-        .from('products')
-        .select('*')
-        .eq('slug', slug)
-        .eq('active', true)
-        .single();
+      
+      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+      const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+      
+      const response = await fetch(
+        `${supabaseUrl}/rest/v1/products?slug=eq.${encodeURIComponent(slug)}&active=eq.true&select=*`,
+        {
+          headers: {
+            'apikey': supabaseKey,
+            'Authorization': `Bearer ${supabaseKey}`
+          }
+        }
+      );
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Error fetching product');
+      }
+      
+      const data = await response.json();
+      if (!data || data.length === 0) throw new Error('Product niet gevonden');
 
-      if (error) throw error;
-      if (!data) throw new Error('Product niet gevonden');
-
-      setProduct(data);
+      setProduct(data[0]);
     } catch (err) {
       console.error('Error fetching product:', err);
       setError(err.message);
@@ -88,23 +98,6 @@ const ProductDetail = () => {
   return (
     <PageTransition className="pt-24">
       <div className="min-h-screen bg-gray-50">
-        {/* Breadcrumb */}
-        <div className="bg-white border-b sticky top-[72px] z-40">
-          <div className="container mx-auto px-6 py-3">
-            <nav className="flex items-center gap-2 text-sm">
-              <Link to="/" className="text-gray-500 hover:text-primary transition-colors">
-                Home
-              </Link>
-              <ChevronRight className="w-4 h-4 text-gray-300" />
-              <Link to="/winkel" className="text-gray-500 hover:text-primary transition-colors">
-                Shop
-              </Link>
-              <ChevronRight className="w-4 h-4 text-gray-300" />
-              <span className="text-gray-900 font-medium truncate max-w-[200px]">{product.name}</span>
-            </nav>
-          </div>
-        </div>
-
         {/* Product Content */}
         <div className="container mx-auto px-6 py-12">
           <div className="grid lg:grid-cols-2 gap-12">
@@ -128,16 +121,20 @@ const ProductDetail = () => {
                     >
                       <source src={product.video_url} type="video/mp4" />
                     </motion.video>
-                  ) : (
+                  ) : images.length > 0 ? (
                     <motion.img
                       key={selectedImageIndex}
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
                       exit={{ opacity: 0 }}
-                      src={images[selectedImageIndex] || '/images/product-protector.jpg'}
+                      src={images[selectedImageIndex]}
                       alt={product.name}
                       className="w-full h-full object-cover"
                     />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center bg-gray-100">
+                      <ShoppingBag className="w-20 h-20 text-gray-300" />
+                    </div>
                   )}
                 </AnimatePresence>
 
@@ -222,7 +219,7 @@ const ProductDetail = () => {
                 {/* Price */}
                 <div className="flex items-baseline gap-3 mb-4">
                   <span className="text-3xl font-bold text-primary">
-                    €{product.price.toFixed(2)}
+                    €{product.price?.toFixed(2) || '0.00'}
                   </span>
                   {product.compare_price && (
                     <span className="text-xl text-gray-400 line-through">
@@ -321,6 +318,17 @@ const ProductDetail = () => {
               </div>
             </div>
           )}
+
+          {/* Back link */}
+          <div className="mt-8">
+            <Link
+              to="/winkel"
+              className="text-gray-500 hover:text-primary transition-colors flex items-center gap-2"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              Terug naar shop
+            </Link>
+          </div>
         </div>
       </div>
     </PageTransition>
@@ -328,4 +336,3 @@ const ProductDetail = () => {
 };
 
 export default ProductDetail;
-

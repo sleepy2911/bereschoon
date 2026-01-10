@@ -128,23 +128,6 @@ const Checkout = () => {
   return (
     <PageTransition className="pt-24">
       <div className="min-h-screen bg-gray-50">
-        {/* Breadcrumbs */}
-        <div className="bg-white border-b sticky top-[72px] z-40">
-          <div className="container mx-auto px-6 py-3">
-            <nav className="flex items-center gap-2 text-sm">
-              <Link to="/" className="text-gray-500 hover:text-primary transition-colors">
-                Home
-              </Link>
-              <ChevronRight className="w-4 h-4 text-gray-300" />
-              <Link to="/winkel" className="text-gray-500 hover:text-primary transition-colors">
-                Shop
-              </Link>
-              <ChevronRight className="w-4 h-4 text-gray-300" />
-              <span className="text-gray-900 font-medium">Afrekenen</span>
-            </nav>
-          </div>
-        </div>
-
         <div className="container mx-auto px-6 py-12">
           <h1 className="text-3xl font-bold mb-8">Afrekenen</h1>
 
@@ -167,13 +150,13 @@ const Checkout = () => {
                       </div>
                       <div className="flex gap-3">
                         <Link
-                          to="/winkel/account"
+                          to="/winkel/account?redirect=/winkel/checkout"
                           className="px-5 py-2.5 bg-primary text-white rounded-lg font-medium hover:bg-primary/90 transition-colors text-sm"
                         >
                           Inloggen
                         </Link>
                         <Link
-                          to="/winkel/account"
+                          to="/winkel/account?redirect=/winkel/checkout"
                           className="px-5 py-2.5 border border-gray-200 rounded-lg font-medium hover:border-primary hover:text-primary transition-colors text-sm"
                         >
                           Registreren

@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Package, Loader2, Clock, CheckCircle, ChevronRight,
-  Truck, XCircle, Eye, ExternalLink
+  Truck, XCircle, Eye, ExternalLink, RefreshCw, Bell
 } from 'lucide-react';
 import PageTransition from '../../components/PageTransition';
 import { useAuth } from '../../context/AuthContext';
@@ -26,16 +26,11 @@ const AccountOrders = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [selectedOrder, setSelectedOrder] = useState(null);
+  const [recentUpdate, setRecentUpdate] = useState(null);
 
-  useEffect(() => {
-    if (!authLoading && !user) {
-      navigate('/winkel/account');
-    } else if (user) {
-      fetchOrders();
-    }
-  }, [user, authLoading, navigate]);
-
-  const fetchOrders = async () => {
+  const fetchOrders = useCallback(async () => {
+    if (!user) return;
+    
     try {
       setLoading(true);
       const { data, error } = await supabase
@@ -61,7 +56,53 @@ const AccountOrders = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [user]);
+
+  useEffect(() => {
+    if (!authLoading && !user) {
+      navigate('/winkel/account');
+    } else if (user) {
+      fetchOrders();
+    }
+  }, [user, authLoading, navigate, fetchOrders]);
+
+  // Realtime subscription voor order updates
+  useEffect(() => {
+    if (!user) return;
+
+    const channel = supabase
+      .channel('order-updates-page')
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'orders',
+          filter: `user_id=eq.${user.id}`
+        },
+        (payload) => {
+          const updatedOrder = payload.new;
+          
+          // Update de order in de lijst
+          setOrders(prevOrders => 
+            prevOrders.map(order => 
+              order.id === updatedOrder.id 
+                ? { ...order, ...updatedOrder }
+                : order
+            )
+          );
+          
+          // Toon update indicator
+          setRecentUpdate(updatedOrder.id);
+          setTimeout(() => setRecentUpdate(null), 3000);
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [user]);
 
   const formatDate = (dateString) => {
     return new Date(dateString).toLocaleDateString('nl-NL', {
@@ -85,27 +126,6 @@ const AccountOrders = () => {
 
   return (
     <PageTransition className="pt-24">
-      {/* Breadcrumbs */}
-      <div className="bg-white border-b sticky top-[72px] z-40">
-        <div className="container mx-auto px-6 py-3">
-          <nav className="flex items-center gap-2 text-sm">
-            <Link to="/" className="text-gray-500 hover:text-primary transition-colors">
-              Home
-            </Link>
-            <ChevronRight className="w-4 h-4 text-gray-300" />
-            <Link to="/winkel" className="text-gray-500 hover:text-primary transition-colors">
-              Shop
-            </Link>
-            <ChevronRight className="w-4 h-4 text-gray-300" />
-            <Link to="/winkel/account" className="text-gray-500 hover:text-primary transition-colors">
-              Account
-            </Link>
-            <ChevronRight className="w-4 h-4 text-gray-300" />
-            <span className="text-gray-900 font-medium">Bestellingen</span>
-          </nav>
-        </div>
-      </div>
-
       <div className="min-h-screen bg-gray-50 py-12">
         <div className="container mx-auto px-6">
           <div className="max-w-4xl mx-auto">
@@ -136,6 +156,7 @@ const AccountOrders = () => {
                 {orders.map((order, index) => {
                   const status = statusConfig[order.status] || statusConfig.pending;
                   const StatusIcon = status.icon;
+                  const isRecentlyUpdated = recentUpdate === order.id;
 
                   return (
                     <motion.div
@@ -143,8 +164,24 @@ const AccountOrders = () => {
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: index * 0.1 }}
-                      className="bg-white rounded-2xl shadow-sm overflow-hidden"
+                      className={`bg-white rounded-2xl shadow-sm overflow-hidden relative ${
+                        isRecentlyUpdated ? 'ring-2 ring-primary ring-offset-2' : ''
+                      }`}
                     >
+                      {/* Recent update indicator */}
+                      <AnimatePresence>
+                        {isRecentlyUpdated && (
+                          <motion.div
+                            initial={{ opacity: 0, x: 20 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            exit={{ opacity: 0, x: 20 }}
+                            className="absolute top-4 right-4 flex items-center gap-2 bg-primary text-white px-3 py-1.5 rounded-full text-xs font-medium"
+                          >
+                            <RefreshCw className="w-3 h-3 animate-spin" />
+                            Zojuist bijgewerkt
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
                       {/* Order Header */}
                       <div className="p-6 border-b">
                         <div className="flex flex-wrap items-center justify-between gap-4">
