@@ -174,6 +174,7 @@ serve(async (req) => {
     }
 
     // Forward to n8n webhook with photo URL instead of binary
+    // Note: service is included in the webhook payload (from step 2 selection: terras, gevel, dak, or overig)
     const n8nWebhookUrl = Deno.env.get('N8N_WEBHOOK_URL');
     
     if (n8nWebhookUrl) {
@@ -184,7 +185,7 @@ serve(async (req) => {
           email,
           address: address || null,
           phone: phone || null,
-          service: validatedService,
+          service: validatedService, // Service choice from step 2 (terras, gevel, dak, or overig)
           photo_url: photoUrlString,
         };
 
