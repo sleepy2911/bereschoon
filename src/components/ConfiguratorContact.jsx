@@ -59,9 +59,9 @@ const ConfiguratorContact = () => {
             if (formData.address) {
                 formDataToSend.append('address', formData.address);
             }
-            if (selectedService) {
-                formDataToSend.append('service', selectedService);
-            }
+            // Always send service - should be set in step 2 (terras, gevel, dak, or overig)
+            // Send empty string if not selected (should not happen if user went through step 2)
+            formDataToSend.append('service', selectedService || '');
 
             // Handle photo upload
             // Use original file if available, otherwise convert base64 to File

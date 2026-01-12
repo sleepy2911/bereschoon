@@ -46,6 +46,9 @@ serve(async (req) => {
         validatedService = null;
       }
     }
+    
+    // Log service value for debugging
+    console.log('Service received:', service, 'Validated service:', validatedService);
 
     // Initialize Supabase client with service role key (bypasses RLS)
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
@@ -179,15 +182,18 @@ serve(async (req) => {
     
     if (n8nWebhookUrl) {
       try {
+        // Always include service in webhook payload (can be null if not provided or invalid)
         const webhookPayload = {
           submission_id: submission.id,
           name,
           email,
           address: address || null,
           phone: phone || null,
-          service: validatedService, // Service choice from step 2 (terras, gevel, dak, or overig)
+          service: validatedService || null, // Service choice from step 2 (terras, gevel, dak, or overig) - always included
           photo_url: photoUrlString,
         };
+        
+        console.log('Webhook payload with service:', JSON.stringify(webhookPayload, null, 2));
 
         console.log('Forwarding to n8n webhook with payload:', webhookPayload);
         
