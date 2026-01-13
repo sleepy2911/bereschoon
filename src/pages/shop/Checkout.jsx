@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { 
   ShoppingBag, CreditCard, Truck, Lock, User, ChevronRight,
-  ChevronDown, Loader2, AlertCircle, UserPlus, Package, Clock
+  ChevronDown, Loader2, AlertCircle, UserPlus, Package, Clock, ArrowLeft
 } from 'lucide-react';
 import PageTransition from '../../components/PageTransition';
 import { useCartStore } from '../../stores/cartStore';
