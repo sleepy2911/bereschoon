@@ -26,6 +26,7 @@ import Account from './pages/shop/Account';
 import AccountOrders from './pages/shop/AccountOrders';
 import AccountSettings from './pages/shop/AccountSettings';
 import AccountNotifications from './pages/shop/AccountNotifications';
+import ResetPassword from './pages/shop/ResetPassword';
 import ShopAdmin from './pages/shop/Admin';
 import CartSidebar from './components/shop/CartSidebar';
 import NotificationToast from './components/shop/NotificationToast';
@@ -119,6 +120,7 @@ function App() {
                 <Route path="/winkel/account/bestellingen" element={<AccountOrders />} />
                 <Route path="/winkel/account/instellingen" element={<AccountSettings />} />
                 <Route path="/winkel/account/meldingen" element={<AccountNotifications />} />
+                <Route path="/winkel/account/wachtwoord-reset" element={<ResetPassword />} />
                 <Route path="/winkel/admin/*" element={<ShopAdmin />} />
                 
                 {/* Order tracking - public */}
