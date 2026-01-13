@@ -19,7 +19,7 @@ export const NotificationProvider = ({ children }) => {
   const [loading, setLoading] = useState(false);
   const [showToast, setShowToast] = useState(null);
 
-  // Fetch notifications (disabled for performance)
+  // Fetch notifications
   const fetchNotifications = useCallback(async () => {
     if (!user) {
       setNotifications([]);
@@ -27,14 +27,6 @@ export const NotificationProvider = ({ children }) => {
       return;
     }
 
-    // DISABLED: Skip fetching for now to improve performance
-    // Will be enabled when notifications system is implemented
-    setNotifications([]);
-    setUnreadCount(0);
-    setLoading(false);
-    return;
-
-    /* COMMENTED OUT FOR PERFORMANCE
     try {
       setLoading(true);
       const { data, error } = await supabase
@@ -61,7 +53,6 @@ export const NotificationProvider = ({ children }) => {
     } finally {
       setLoading(false);
     }
-    */
   }, [user]);
 
   // Mark notification as read
@@ -115,11 +106,6 @@ export const NotificationProvider = ({ children }) => {
     // Fetch notifications without blocking
     fetchNotifications();
 
-    // Skip subscription if notifications table doesn't exist
-    // The subscription will be set up later when the table is created
-    
-    // Uncomment when notifications table is ready:
-    /*
     const channel = supabase
       .channel('notifications')
       .on(
@@ -154,20 +140,14 @@ export const NotificationProvider = ({ children }) => {
     return () => {
       supabase.removeChannel(channel);
     };
-    */
   }, [user, fetchNotifications]);
 
   // Also subscribe to order changes for realtime updates
   useEffect(() => {
     if (!user) return;
 
-    // Skip order subscription for now to avoid blocking
-    // Will be enabled when notifications system is fully implemented
-    
-    // Uncomment when ready:
-    /*
     const orderChannel = supabase
-      .channel('order-updates')
+      .channel('order-updates-notifications')
       .on(
         'postgres_changes',
         {
@@ -186,7 +166,6 @@ export const NotificationProvider = ({ children }) => {
     return () => {
       supabase.removeChannel(orderChannel);
     };
-    */
   }, [user, fetchNotifications]);
 
   const dismissToast = () => {

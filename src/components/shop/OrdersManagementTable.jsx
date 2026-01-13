@@ -1,7 +1,7 @@
 import React, { useState, useEffect, Fragment } from 'react';
 import { motion } from 'framer-motion';
 import { 
-  Package, Loader2, Eye, ExternalLink, X, Truck
+  Package, Loader2, Eye, ExternalLink, X, Truck, MessageSquare, Save
 } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 
@@ -16,6 +16,9 @@ const OrdersManagementTable = () => {
     description: ''
   });
   const [updatingTracking, setUpdatingTracking] = useState(false);
+  const [editingNote, setEditingNote] = useState(null);
+  const [noteText, setNoteText] = useState('');
+  const [savingNote, setSavingNote] = useState(false);
 
   useEffect(() => {
     fetchOrders();
@@ -143,6 +146,45 @@ const OrdersManagementTable = () => {
     }
   };
 
+  const startEditingNote = (order) => {
+    setEditingNote(order.id);
+    setNoteText(order.external_notes || '');
+  };
+
+  const cancelEditingNote = () => {
+    setEditingNote(null);
+    setNoteText('');
+  };
+
+  const saveExternalNote = async (orderId) => {
+    setSavingNote(true);
+    try {
+      const { error } = await supabase
+        .from('orders')
+        .update({ external_notes: noteText.trim() || null })
+        .eq('id', orderId);
+
+      if (error) throw error;
+
+      // Update local state
+      setOrders(prevOrders => 
+        prevOrders.map(order => 
+          order.id === orderId 
+            ? { ...order, external_notes: noteText.trim() || null }
+            : order
+        )
+      );
+
+      setEditingNote(null);
+      setNoteText('');
+    } catch (err) {
+      console.error('Error saving external note:', err);
+      alert('Kon notitie niet opslaan: ' + err.message);
+    } finally {
+      setSavingNote(false);
+    }
+  };
+
   const formatDate = (dateString) => {
     return new Date(dateString).toLocaleDateString('nl-NL', {
       day: 'numeric',
@@ -257,6 +299,78 @@ const OrdersManagementTable = () => {
                                   </div>
                                 ))}
                               </div>
+                            </div>
+                            
+                            {/* External Notes - Visible to customer */}
+                            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg p-4 border-l-4 border-primary">
+                              <div className="flex items-center justify-between mb-2">
+                                <h4 className="font-bold flex items-center gap-2">
+                                  <MessageSquare className="w-5 h-5 text-primary" />
+                                  Notitie voor klant
+                                </h4>
+                                {editingNote !== order.id && (
+                                  <button
+                                    onClick={() => startEditingNote(order)}
+                                    className="text-sm text-primary hover:underline"
+                                  >
+                                    {order.external_notes ? 'Bewerken' : '+ Notitie toevoegen'}
+                                  </button>
+                                )}
+                              </div>
+                              
+                              {editingNote === order.id ? (
+                                <div className="space-y-3">
+                                  <textarea
+                                    value={noteText}
+                                    onChange={(e) => setNoteText(e.target.value)}
+                                    rows={4}
+                                    className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none resize-none text-sm"
+                                    placeholder="Voeg een notitie toe die zichtbaar is voor de klant (als ze een account hebben)..."
+                                  />
+                                  <div className="flex gap-2">
+                                    <button
+                                      onClick={() => saveExternalNote(order.id)}
+                                      disabled={savingNote}
+                                      className="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors disabled:opacity-70 text-sm"
+                                    >
+                                      {savingNote ? (
+                                        <>
+                                          <Loader2 className="w-4 h-4 animate-spin" />
+                                          Opslaan...
+                                        </>
+                                      ) : (
+                                        <>
+                                          <Save className="w-4 h-4" />
+                                          Opslaan
+                                        </>
+                                      )}
+                                    </button>
+                                    <button
+                                      onClick={cancelEditingNote}
+                                      disabled={savingNote}
+                                      className="px-4 py-2 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-70 text-sm"
+                                    >
+                                      Annuleren
+                                    </button>
+                                  </div>
+                                  <p className="text-xs text-gray-600">
+                                    💡 De klant krijgt een melding wanneer je een notitie toevoegt of wijzigt.
+                                  </p>
+                                </div>
+                              ) : (
+                                <div>
+                                  {order.external_notes ? (
+                                    <p className="text-sm text-gray-700 whitespace-pre-wrap">{order.external_notes}</p>
+                                  ) : (
+                                    <p className="text-sm text-gray-500 italic">Nog geen notitie toegevoegd</p>
+                                  )}
+                                  {order.user_id ? (
+                                    <p className="text-xs text-green-600 mt-2">✓ Klant heeft een account en zal notificaties ontvangen</p>
+                                  ) : (
+                                    <p className="text-xs text-orange-600 mt-2">⚠ Klant heeft geen account, notificaties worden niet verzonden</p>
+                                  )}
+                                </div>
+                              )}
                             </div>
                             
                             {/* Tracking Info */}

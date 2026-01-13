@@ -244,6 +244,25 @@ const AccountOrders = () => {
                               </div>
                             )}
 
+                            {/* Admin Notes */}
+                            {order.external_notes && (
+                              <motion.div
+                                initial={{ opacity: 0, y: -10 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-4 border-l-4 border-primary"
+                              >
+                                <div className="flex items-start gap-3">
+                                  <div className="bg-primary/10 rounded-full p-2">
+                                    <Bell className="w-5 h-5 text-primary" />
+                                  </div>
+                                  <div className="flex-1">
+                                    <p className="text-sm font-semibold text-primary mb-1">💬 Notitie van Bereschoon</p>
+                                    <p className="text-gray-700 whitespace-pre-wrap">{order.external_notes}</p>
+                                  </div>
+                                </div>
+                              </motion.div>
+                            )}
+
                             {/* Tracking */}
                             {order.tracking_code && (
                               <div className="bg-gradient-to-r from-green-50 to-blue-50 rounded-xl p-4">
