@@ -26,27 +26,27 @@ export const AuthProvider = ({ children }) => {
     }
 
     try {
-      // Fetch profile and admin status in parallel for speed
-      const [profileResult, adminResult] = await Promise.all([
-        supabase
-          .from('profiles')
-          .select('*')
-          .eq('id', userId)
-          .single()
-          .catch(err => {
-            console.warn('Profile not found, will create on first update:', err.message);
-            return { data: null, error: err };
-          }),
-        supabase
-          .from('admin_users')
-          .select('role')
-          .eq('user_id', userId)
-          .single()
-          .catch(() => ({ data: null })) // Not admin if no record
-      ]);
+      // Fetch profile - don't fail if it doesn't exist yet
+      const { data: profileData, error: profileError } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', userId)
+        .single();
 
-      setProfile(profileResult.data);
-      setIsAdmin(!!adminResult.data);
+      if (profileError && profileError.code !== 'PGRST116') {
+        // PGRST116 = not found, which is OK
+        console.warn('Profile error:', profileError.message);
+      }
+
+      // Check admin status - fail silently if not admin
+      const { data: adminData } = await supabase
+        .from('admin_users')
+        .select('role')
+        .eq('user_id', userId)
+        .single();
+
+      setProfile(profileData);
+      setIsAdmin(!!adminData);
     } catch (error) {
       console.error('Error fetching user data:', error);
       setProfile(null);

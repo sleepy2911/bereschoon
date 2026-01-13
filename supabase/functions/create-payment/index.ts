@@ -88,6 +88,7 @@ serve(async (req) => {
 
     // Validate carrier info
     if (!carrier || !carrier.code || !carrier.name) {
+      console.error('Carrier validation failed:', JSON.stringify(carrier));
       throw new Error('Verzendmethode niet geselecteerd');
     }
 
@@ -95,6 +96,8 @@ serve(async (req) => {
     const subtotal = items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
     const shippingCost = carrier?.cost || 0;
     const total = subtotal + shippingCost;
+
+    console.log('Order totals:', { subtotal, shippingCost, total, carrier });
 
     // Create order in database
     const { data: order, error: orderError } = await supabase
