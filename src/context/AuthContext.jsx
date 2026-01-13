@@ -26,25 +26,31 @@ export const AuthProvider = ({ children }) => {
     }
 
     try {
-      // Fetch profile
-      const { data: profileData } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', userId)
-        .single();
+      // Fetch profile and admin status in parallel for speed
+      const [profileResult, adminResult] = await Promise.all([
+        supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', userId)
+          .single()
+          .catch(err => {
+            console.warn('Profile not found, will create on first update:', err.message);
+            return { data: null, error: err };
+          }),
+        supabase
+          .from('admin_users')
+          .select('role')
+          .eq('user_id', userId)
+          .single()
+          .catch(() => ({ data: null })) // Not admin if no record
+      ]);
 
-      setProfile(profileData);
-
-      // Check admin status
-      const { data: adminData } = await supabase
-        .from('admin_users')
-        .select('role')
-        .eq('user_id', userId)
-        .single();
-
-      setIsAdmin(!!adminData);
+      setProfile(profileResult.data);
+      setIsAdmin(!!adminResult.data);
     } catch (error) {
       console.error('Error fetching user data:', error);
+      setProfile(null);
+      setIsAdmin(false);
     }
   };
 

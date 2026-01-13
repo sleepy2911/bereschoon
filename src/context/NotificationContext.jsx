@@ -36,12 +36,21 @@ export const NotificationProvider = ({ children }) => {
         .order('created_at', { ascending: false })
         .limit(50);
 
-      if (error) throw error;
+      if (error) {
+        // Table might not exist yet, fail silently
+        console.warn('Notifications table not available:', error.message);
+        setNotifications([]);
+        setUnreadCount(0);
+        setLoading(false);
+        return;
+      }
 
       setNotifications(data || []);
       setUnreadCount(data?.filter(n => !n.read).length || 0);
     } catch (error) {
       console.error('Error fetching notifications:', error);
+      setNotifications([]);
+      setUnreadCount(0);
     } finally {
       setLoading(false);
     }
@@ -95,9 +104,14 @@ export const NotificationProvider = ({ children }) => {
   useEffect(() => {
     if (!user) return;
 
+    // Fetch notifications without blocking
     fetchNotifications();
 
-    // Subscribe to new notifications
+    // Skip subscription if notifications table doesn't exist
+    // The subscription will be set up later when the table is created
+    
+    // Uncomment when notifications table is ready:
+    /*
     const channel = supabase
       .channel('notifications')
       .on(
@@ -132,12 +146,18 @@ export const NotificationProvider = ({ children }) => {
     return () => {
       supabase.removeChannel(channel);
     };
+    */
   }, [user, fetchNotifications]);
 
   // Also subscribe to order changes for realtime updates
   useEffect(() => {
     if (!user) return;
 
+    // Skip order subscription for now to avoid blocking
+    // Will be enabled when notifications system is fully implemented
+    
+    // Uncomment when ready:
+    /*
     const orderChannel = supabase
       .channel('order-updates')
       .on(
@@ -158,6 +178,7 @@ export const NotificationProvider = ({ children }) => {
     return () => {
       supabase.removeChannel(orderChannel);
     };
+    */
   }, [user, fetchNotifications]);
 
   const dismissToast = () => {
