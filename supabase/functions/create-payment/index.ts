@@ -29,10 +29,17 @@ interface ShippingAddress {
   country: string;
 }
 
+interface CarrierInfo {
+  code: string;
+  name: string;
+  cost: number;
+}
+
 interface PaymentRequest {
   items: CartItem[];
   customer: CustomerInfo;
   shippingAddress: ShippingAddress;
+  carrier: CarrierInfo;
   notes?: string;
   userId?: string;
 }
@@ -71,7 +78,7 @@ serve(async (req) => {
 
     // Parse request body
     const body: PaymentRequest = await req.json();
-    const { items, customer, shippingAddress, notes, userId } = body;
+    const { items, customer, shippingAddress, carrier, notes, userId } = body;
 
     // Validate request
     if (!items || items.length === 0) {
@@ -93,7 +100,7 @@ serve(async (req) => {
 
     // Calculate totals
     const subtotal = items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-    const shippingCost = subtotal >= FREE_SHIPPING_THRESHOLD ? 0 : SHIPPING_RATES[shippingAddress.country];
+    const shippingCost = carrier?.cost || 0;
     const total = subtotal + shippingCost;
 
     // Create order in database
@@ -108,6 +115,8 @@ serve(async (req) => {
         total: total,
         shipping_address: shippingAddress,
         billing_address: shippingAddress, // Same as shipping for now
+        chosen_carrier_code: carrier?.code || null,
+        chosen_carrier_name: carrier?.name || null,
         notes: notes || null
       })
       .select()

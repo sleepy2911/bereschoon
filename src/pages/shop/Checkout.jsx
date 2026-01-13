@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { 
   ShoppingBag, CreditCard, Truck, Lock, User, ChevronRight,
-  ChevronDown, Loader2, AlertCircle, UserPlus
+  ChevronDown, Loader2, AlertCircle, UserPlus, Package, Clock
 } from 'lucide-react';
 import PageTransition from '../../components/PageTransition';
 import { useCartStore } from '../../stores/cartStore';
@@ -11,9 +11,9 @@ import { useAuth } from '../../context/AuthContext';
 import { supabase } from '../../lib/supabase';
 
 const SHIPPING_COUNTRIES = [
-  { code: 'NL', name: 'Nederland', shippingCost: 4.95 },
-  { code: 'BE', name: 'België', shippingCost: 5.95 },
-  { code: 'LU', name: 'Luxemburg', shippingCost: 6.95 }
+  { code: 'NL', name: 'Nederland' },
+  { code: 'BE', name: 'België' },
+  { code: 'LU', name: 'Luxemburg' }
 ];
 
 const FREE_SHIPPING_THRESHOLD = 50;
@@ -24,6 +24,8 @@ const Checkout = () => {
   const { items, getCartSummary, clearCart } = useCartStore();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [availableCarriers, setAvailableCarriers] = useState([]);
+  const [selectedCarrier, setSelectedCarrier] = useState(null);
 
   const [formData, setFormData] = useState({
     email: user?.email || '',
@@ -39,16 +41,53 @@ const Checkout = () => {
   });
 
   const handleChange = (e) => {
+    const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
-      [e.target.name]: e.target.value
+      [name]: value
     }));
+    
+    // If country changes, fetch new carriers
+    if (name === 'country') {
+      fetchCarriers(value);
+    }
   };
+
+  // Fetch available carriers for selected country
+  const fetchCarriers = async (countryCode) => {
+    try {
+      const { data, error } = await supabase
+        .rpc('get_available_carriers', { country: countryCode });
+      
+      if (error) throw error;
+      
+      setAvailableCarriers(data || []);
+      // Auto-select cheapest carrier (DHL)
+      if (data && data.length > 0) {
+        setSelectedCarrier(data[0]);
+      }
+    } catch (err) {
+      console.error('Error fetching carriers:', err);
+      // Fallback to default carriers
+      const fallbackCarriers = [
+        { carrier_code: 'dhl', carrier_name: 'DHL', flat_rate: 5.95, delivery_time: '1-2 werkdagen', free_shipping_threshold: 50 },
+        { carrier_code: 'postnl', carrier_name: 'PostNL', flat_rate: 6.95, delivery_time: '1-2 werkdagen', free_shipping_threshold: 50 }
+      ];
+      setAvailableCarriers(fallbackCarriers);
+      setSelectedCarrier(fallbackCarriers[0]);
+    }
+  };
+
+  // Load carriers on mount and when country changes
+  useEffect(() => {
+    fetchCarriers(formData.country);
+  }, []);
 
   // Calculate totals
   const { subtotal } = getCartSummary();
-  const selectedCountry = SHIPPING_COUNTRIES.find(c => c.code === formData.country) || SHIPPING_COUNTRIES[0];
-  const shippingCost = subtotal >= FREE_SHIPPING_THRESHOLD ? 0 : selectedCountry.shippingCost;
+  const shippingCost = selectedCarrier && subtotal >= FREE_SHIPPING_THRESHOLD 
+    ? 0 
+    : (selectedCarrier?.flat_rate || 0);
   const total = subtotal + shippingCost;
 
   const handleSubmit = async (e) => {
@@ -85,6 +124,11 @@ const Checkout = () => {
             postalCode: formData.postalCode,
             city: formData.city,
             country: formData.country
+          },
+          carrier: {
+            code: selectedCarrier?.carrier_code || 'dhl',
+            name: selectedCarrier?.carrier_name || 'DHL',
+            cost: shippingCost
           },
           notes: formData.notes,
           userId: user?.id || null
@@ -340,10 +384,76 @@ const Checkout = () => {
                   </div>
                 </div>
 
-                {/* Payment */}
+                {/* Shipping Method */}
                 <div className="bg-white rounded-2xl p-6 shadow-sm">
                   <h2 className="text-xl font-bold mb-6 flex items-center gap-2">
                     <span className="w-8 h-8 bg-primary text-white rounded-full flex items-center justify-center text-sm">3</span>
+                    Verzendmethode
+                  </h2>
+
+                  <div className="space-y-3">
+                    {availableCarriers.map((carrier) => (
+                      <motion.div
+                        key={carrier.carrier_code}
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                        onClick={() => setSelectedCarrier(carrier)}
+                        className={`p-4 border-2 rounded-xl cursor-pointer transition-all ${
+                          selectedCarrier?.carrier_code === carrier.carrier_code
+                            ? 'border-primary bg-primary/5'
+                            : 'border-gray-200 hover:border-primary/50'
+                        }`}
+                      >
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-4">
+                            <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
+                              selectedCarrier?.carrier_code === carrier.carrier_code
+                                ? 'border-primary bg-primary'
+                                : 'border-gray-300'
+                            }`}>
+                              {selectedCarrier?.carrier_code === carrier.carrier_code && (
+                                <div className="w-2 h-2 bg-white rounded-full" />
+                              )}
+                            </div>
+                            <div className="flex items-center gap-3">
+                              <Truck className="w-5 h-5 text-primary" />
+                              <div>
+                                <p className="font-bold">{carrier.carrier_name}</p>
+                                <div className="flex items-center gap-2 text-sm text-gray-600">
+                                  <Clock className="w-4 h-4" />
+                                  <span>{carrier.delivery_time}</span>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                          <div className="text-right">
+                            {subtotal >= FREE_SHIPPING_THRESHOLD ? (
+                              <div>
+                                <p className="font-bold text-green-600">Gratis</p>
+                                <p className="text-xs text-gray-500 line-through">€{carrier.flat_rate.toFixed(2)}</p>
+                              </div>
+                            ) : (
+                              <p className="font-bold text-primary">€{carrier.flat_rate.toFixed(2)}</p>
+                            )}
+                          </div>
+                        </div>
+                      </motion.div>
+                    ))}
+                  </div>
+
+                  {subtotal < FREE_SHIPPING_THRESHOLD && (
+                    <div className="mt-4 p-4 bg-blue-50 rounded-xl">
+                      <p className="text-sm text-blue-800">
+                        💡 Nog €{(FREE_SHIPPING_THRESHOLD - subtotal).toFixed(2)} voor gratis verzending!
+                      </p>
+                    </div>
+                  )}
+                </div>
+
+                {/* Payment */}
+                <div className="bg-white rounded-2xl p-6 shadow-sm">
+                  <h2 className="text-xl font-bold mb-6 flex items-center gap-2">
+                    <span className="w-8 h-8 bg-primary text-white rounded-full flex items-center justify-center text-sm">4</span>
                     Betaling
                   </h2>
 
