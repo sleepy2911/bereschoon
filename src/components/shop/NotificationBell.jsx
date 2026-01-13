@@ -60,6 +60,15 @@ const NotificationBell = () => {
     if (!notification.read) {
       markAsRead([notification.id]);
     }
+    
+    // Close dropdown
+    setIsOpen(false);
+    
+    // Navigate based on notification type and data
+    if (notification.order_id && notification.metadata?.order_number) {
+      // Navigate to orders page with the specific order ID
+      window.location.href = `/winkel/account/bestellingen?order=${notification.order_id}`;
+    }
   };
 
   return (
@@ -143,17 +152,10 @@ const NotificationBell = () => {
                             <span className="text-xs text-gray-400">
                               {formatTime(notification.created_at)}
                             </span>
-                            {notification.data?.tracking_url && (
-                              <a
-                                href={notification.data.tracking_url}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                onClick={(e) => e.stopPropagation()}
-                                className="text-xs text-primary hover:underline flex items-center gap-1"
-                              >
-                                Volg pakket
-                                <ExternalLink className="w-3 h-3" />
-                              </a>
+                            {notification.metadata?.order_number && (
+                              <span className="text-xs text-gray-500 font-mono">
+                                {notification.metadata.order_number}
+                              </span>
                             )}
                           </div>
                         </div>

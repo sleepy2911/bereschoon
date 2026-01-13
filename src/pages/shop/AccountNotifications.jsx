@@ -69,7 +69,7 @@ const AccountNotifications = () => {
     
     // Navigate to order if there's an order_id
     if (notification.order_id) {
-      navigate('/winkel/account/bestellingen');
+      navigate(`/winkel/account/bestellingen?order=${notification.order_id}`);
     }
   };
 
@@ -155,9 +155,9 @@ const AccountNotifications = () => {
                               <p className={`font-bold ${!notification.read ? 'text-gray-900' : 'text-gray-700'}`}>
                                 {notification.title}
                               </p>
-                              {notification.data?.order_number && (
+                              {notification.metadata?.order_number && (
                                 <p className="text-xs text-gray-500 font-mono mt-0.5">
-                                  {notification.data.order_number}
+                                  {notification.metadata.order_number}
                                 </p>
                               )}
                             </div>
@@ -176,28 +176,14 @@ const AccountNotifications = () => {
                           
                           {/* Action buttons */}
                           <div className="flex items-center gap-4 mt-3">
-                            {notification.data?.tracking_url && (
-                              <a
-                                href={notification.data.tracking_url}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                onClick={(e) => e.stopPropagation()}
-                                className="inline-flex items-center gap-1 text-sm text-primary hover:underline font-medium"
-                              >
-                                <Truck className="w-4 h-4" />
-                                Volg pakket
-                                <ExternalLink className="w-3 h-3" />
-                              </a>
-                            )}
                             {notification.order_id && (
-                              <Link
-                                to="/winkel/account/bestellingen"
+                              <span
                                 onClick={(e) => e.stopPropagation()}
-                                className="inline-flex items-center gap-1 text-sm text-gray-500 hover:text-primary transition-colors"
+                                className="inline-flex items-center gap-1 text-sm text-primary hover:underline font-medium cursor-pointer"
                               >
                                 <Package className="w-4 h-4" />
                                 Bekijk bestelling
-                              </Link>
+                              </span>
                             )}
                           </div>
                         </div>

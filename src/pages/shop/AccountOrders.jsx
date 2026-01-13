@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Package, Loader2, Clock, CheckCircle, ChevronRight,
@@ -21,6 +21,7 @@ const statusConfig = {
 
 const AccountOrders = () => {
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const { user, loading: authLoading } = useAuth();
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -65,6 +66,27 @@ const AccountOrders = () => {
       fetchOrders();
     }
   }, [user, authLoading, navigate, fetchOrders]);
+
+  // Auto-expand order from URL parameter
+  useEffect(() => {
+    const orderId = searchParams.get('order');
+    if (orderId && orders.length > 0) {
+      // Check if this order exists in the list
+      const orderExists = orders.find(o => o.id === orderId);
+      if (orderExists) {
+        setSelectedOrder(orderId);
+        // Scroll to order after a short delay
+        setTimeout(() => {
+          const element = document.getElementById(`order-${orderId}`);
+          if (element) {
+            element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }
+        }, 100);
+        // Clear URL parameter after expanding
+        setSearchParams({});
+      }
+    }
+  }, [searchParams, orders, setSearchParams]);
 
   // Realtime subscription voor order updates
   useEffect(() => {
@@ -161,6 +183,7 @@ const AccountOrders = () => {
                   return (
                     <motion.div
                       key={order.id}
+                      id={`order-${order.id}`}
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: index * 0.1 }}
