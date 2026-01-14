@@ -1,70 +1,55 @@
-import React, { useState, useRef, useMemo } from 'react';
+import React, { useState, useRef, useMemo, useEffect } from 'react';
 import { motion, useInView, AnimatePresence } from 'framer-motion';
 import { ChevronLeft, ChevronRight, X, ZoomIn, Droplets, ArrowLeft } from 'lucide-react';
 import { ReactCompareSlider, ReactCompareSliderImage } from 'react-compare-slider';
 import { fadeInUp, staggerContainer, viewportSettings } from '../utils/animations';
+import { supabase } from '../lib/supabase';
 
-// Function to automatically pair before/after images
-const pairImages = () => {
-    const imagePairs = [];
-    const processedImages = new Set();
-    
-    // List of all images in the optimized folder
-    const allImages = [
-        '1voor.webp', '1na.webp',
-        'gevers voor.webp', 'gevers na.webp', 'gevers na 2.webp',
-        'hoek 1 voor.webp', 'hoek 1 na.webp', 'hoek 1 ingeveegd na.webp',
-        'mac drive voor.webp', 'mac drive na.webp',
-        'mac drive 2 voor.webp', 'mac drive 2 na.webp',
-        'mac ingang voor.webp', 'mac ingang na.webp',
-        'mac voor.webp', 'mac na.webp',
-        'onkruid tuin voor.webp', 'onkruid tuin na.webp',
-        'rood huis voor.webp', 'rood huis na.webp',
-        'villa voor.webp', 'villa na.webp',
-    ];
+// Function to fetch projects from database
+const fetchProjects = async () => {
+    try {
+        const { data, error } = await supabase
+            .from('projects')
+            .select('*')
+            .order('created_at', { ascending: false });
 
-    // Group images by base name
-    const imageGroups = {};
-    
-    allImages.forEach(imageName => {
-        const baseName = imageName
-            .replace(/\s+voor\.webp$/i, '')
-            .replace(/\s+na\s*\d*\.webp$/i, '')
-            .replace(/\s+ingeveegd\s+na\.webp$/i, '')
-            .trim();
-        
-        if (!imageGroups[baseName]) {
-            imageGroups[baseName] = { before: [], after: [] };
+        console.log('🔍 Projects Query Result:', { 
+            data, 
+            error, 
+            dataLength: data?.length,
+            hasError: !!error 
+        });
+
+        if (error) {
+            console.error('❌ Error fetching projects:', error);
+            return [];
         }
-        
-        const lowerName = imageName.toLowerCase();
-        if (lowerName.includes('voor')) {
-            imageGroups[baseName].before.push(imageName);
-        } else if (lowerName.includes('na') || lowerName.includes('ingeveegd')) {
-            imageGroups[baseName].after.push(imageName);
-        }
-    });
 
-    // Create project pairs
-    Object.entries(imageGroups).forEach(([projectName, images]) => {
-        if (images.before.length > 0 && images.after.length > 0) {
-            // Create pairs for each before/after combination
-            images.before.forEach((beforeImg, beforeIdx) => {
-                images.after.forEach((afterImg, afterIdx) => {
-                    const pairId = `${projectName}-${beforeIdx}-${afterIdx}`;
-                    imagePairs.push({
-                        id: pairId,
-                        projectName: projectName.charAt(0).toUpperCase() + projectName.slice(1).replace(/\s+/g, ' '),
-                        before: `/images/images_optimized/${beforeImg}`,
-                        after: `/images/images_optimized/${afterImg}`,
-                        category: getCategoryFromName(projectName)
-                    });
-                });
-            });
+        if (!data || data.length === 0) {
+            console.warn('⚠️ No projects returned from database');
+            return [];
         }
-    });
 
-    return imagePairs;
+        console.log('✅ Raw projects:', data);
+
+        // Transform database projects to match the expected format
+        const transformed = data
+            .filter(project => project.before_image_url && project.after_image_url)
+            .map(project => ({
+                id: project.id,
+                projectName: project.name,
+                before: project.before_image_url,
+                after: project.after_image_url,
+                category: getCategoryFromName(project.name),
+                date: project.date
+            }));
+
+        console.log('✅ Transformed projects:', transformed);
+        return transformed;
+    } catch (error) {
+        console.error('❌ Exception in fetchProjects:', error);
+        return [];
+    }
 };
 
 const getCategoryFromName = (name) => {
@@ -311,11 +296,22 @@ const ProjectCard = ({ project, onClick, index }) => {
 const Gallery = () => {
     const [selectedGroupIndex, setSelectedGroupIndex] = useState(null);
     const [modalOpen, setModalOpen] = useState(false);
+    const [projects, setProjects] = useState([]);
+    const [loading, setLoading] = useState(true);
     const ref = useRef(null);
     const isInView = useInView(ref, viewportSettings);
 
-    // Get paired projects
-    const projects = useMemo(() => pairImages(), []);
+    // Fetch projects from database
+    useEffect(() => {
+        const loadProjects = async () => {
+            setLoading(true);
+            const projectsData = await fetchProjects();
+            setProjects(projectsData);
+            setLoading(false);
+        };
+
+        loadProjects();
+    }, []);
 
     // Group projects by project name
     const groupedProjects = useMemo(() => {
@@ -390,22 +386,38 @@ const Gallery = () => {
                     </p>
                 </motion.div>
 
+                {/* Loading State */}
+                {loading && (
+                    <div className="flex justify-center items-center py-12">
+                        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+                    </div>
+                )}
+
+                {/* Empty State */}
+                {!loading && groupedProjects.length === 0 && (
+                    <div className="text-center py-12">
+                        <p className="text-muted-foreground text-lg">Geen projecten gevonden.</p>
+                    </div>
+                )}
+
                 {/* Projects Grid */}
-                <motion.div
-                    className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
-                    variants={staggerContainer}
-                    initial="hidden"
-                    animate={isInView ? "visible" : "hidden"}
-                >
-                    {groupedProjects.map((group, groupIndex) => (
-                        <ProjectCard
-                            key={group.name}
-                            project={group.thumbnail}
-                            onClick={() => openModal(groupIndex, 0)}
-                            index={groupIndex}
-                        />
-                    ))}
-                </motion.div>
+                {!loading && groupedProjects.length > 0 && (
+                    <motion.div
+                        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+                        variants={staggerContainer}
+                        initial="hidden"
+                        animate={isInView ? "visible" : "hidden"}
+                    >
+                        {groupedProjects.map((group, groupIndex) => (
+                            <ProjectCard
+                                key={group.name}
+                                project={group.thumbnail}
+                                onClick={() => openModal(groupIndex, 0)}
+                                index={groupIndex}
+                            />
+                        ))}
+                    </motion.div>
+                )}
             </div>
 
             {/* Before/After Modal */}
