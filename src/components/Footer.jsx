@@ -68,40 +68,66 @@ const Footer = () => {
                     <div className="space-y-6">
                         <img src="/images/logo.png" alt="Bereschoon" className="h-16 w-auto" />
                         <p className="text-stone-300 text-sm leading-relaxed max-w-md">
-                            Professionele externe reiniging voor een stralend resultaat. Wij tillen uw vastgoed naar een hoger niveau met geavanceerde reinigingstechnieken.
+                            Professionele externe reiniging voor een stralend resultaat. Wij tillen uw vastgoed naar een hoger niveau.
                         </p>
-                        
+
+                        {/* Trust Badges */}
+                        <div className="flex flex-col gap-4">
+                            {/* Review Placeholder */}
+                            <a
+                                href="https://www.google.com/search?q=Bereschoon+Helmond+reviews"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="flex items-center gap-3 bg-white/5 p-3 rounded-lg border border-white/10 max-w-max hover:bg-white/10 transition-colors cursor-pointer"
+                            >
+                                <div className="text-yellow-400 flex text-sm">★★★★★</div>
+                                <div className="text-xs text-stone-300">
+                                    <span className="font-bold text-white">5.0/5</span> op Google
+                                </div>
+                            </a>
+
+                            {/* Company Details */}
+                            <div className="text-xs text-stone-400 space-y-1">
+                                <p>KvK: 91411629</p>
+                                <p>BTW: NL91411629B01</p>
+                                <p className="flex items-center gap-1.5 mt-2 text-stone-300">
+                                    <MapPin size={12} className="text-primary" />
+                                    Werkgebied: Noord-Brabant & omstreken
+                                </p>
+                            </div>
+                        </div>
+
                         {/* Social Media Icons */}
-                        <div className="flex items-center gap-3">
-                            <a 
-                                href="https://www.linkedin.com/company/bereschoon" 
-                                target="_blank" 
+                        <div className="flex items-center gap-3 mt-4">
+                            <a
+                                href="https://www.linkedin.com/company/bereschoon"
+                                target="_blank"
                                 rel="noopener noreferrer"
                                 className="w-10 h-10 rounded-full border border-white/30 bg-white/5 flex items-center justify-center hover:bg-white/10 hover:border-white/50 transition-all"
                                 aria-label="LinkedIn"
                             >
                                 <Linkedin size={18} className="text-white" />
                             </a>
-                            <a 
-                                href="https://wa.me/31612345678" 
-                                target="_blank" 
+                            <a
+                                href="https://wa.me/31639494059"
+                                target="_blank"
                                 rel="noopener noreferrer"
                                 className="w-10 h-10 rounded-full border border-white/30 bg-white/5 flex items-center justify-center hover:bg-white/10 hover:border-white/50 transition-all"
                                 aria-label="WhatsApp"
                             >
                                 <MessageCircle size={18} className="text-white" />
                             </a>
-                            <a 
-                                href="https://www.instagram.com/bereschoon" 
-                                target="_blank" 
+                            <a
+                                href="https://www.instagram.com/bereschoon"
+                                target="_blank"
                                 rel="noopener noreferrer"
                                 className="w-10 h-10 rounded-full border border-white/30 bg-white/5 flex items-center justify-center hover:bg-white/10 hover:border-white/50 transition-all"
                                 aria-label="Instagram"
                             >
                                 <Instagram size={18} className="text-white" />
                             </a>
-                            <a 
-                                href="mailto:info@bereschoon.nl" 
+                            <a
+                                href="mailto:info@bereschoon.nl"
                                 className="w-10 h-10 rounded-full border border-white/30 bg-white/5 flex items-center justify-center hover:bg-white/10 hover:border-white/50 transition-all"
                                 aria-label="Email"
                             >
@@ -111,7 +137,7 @@ const Footer = () => {
                     </div>
 
                     {/* Quick Links & Contact Combined */}
-                    <div className="space-y-8">
+                    <div className="flex flex-col lg:flex-row gap-32 pt-6">
                         {/* Quick Links */}
                         <div>
                             <h4 className="font-semibold text-white mb-6">Snelle Links</h4>
@@ -145,7 +171,7 @@ const Footer = () => {
                             <ul className="space-y-4 text-sm">
                                 <li className="flex items-start space-x-3">
                                     <MapPin size={18} className="text-primary mt-0.5 flex-shrink-0" />
-                                    <span className="text-stone-300">Amsterdam, Nederland</span>
+                                    <span className="text-stone-300">Helmond, Nederland</span>
                                 </li>
                                 <li className="flex items-center space-x-3">
                                     <Mail size={18} className="text-primary flex-shrink-0" />
@@ -155,8 +181,8 @@ const Footer = () => {
                                 </li>
                                 <li className="flex items-center space-x-3">
                                     <Phone size={18} className="text-primary flex-shrink-0" />
-                                    <a href="tel:+31612345678" className="text-stone-300 hover:text-white transition-colors">
-                                        +31 (0)6 1234 5678
+                                    <a href="tel:+31639494059" className="text-stone-300 hover:text-white transition-colors">
+                                        06 39494059
                                     </a>
                                 </li>
                             </ul>
@@ -270,9 +296,9 @@ const Footer = () => {
                     <div className="text-center">
                         <p className="text-xs text-stone-400">
                             Bereschoon powered by{' '}
-                            <a 
-                                href="https://rootandlogic.com" 
-                                target="_blank" 
+                            <a
+                                href="https://rootandlogic.com"
+                                target="_blank"
                                 rel="noopener noreferrer"
                                 className="text-stone-300 hover:text-white transition-colors underline"
                             >

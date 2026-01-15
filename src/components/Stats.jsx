@@ -6,19 +6,19 @@ import { staggerContainer, scaleIn } from '../utils/animations';
 const stats = [
     { value: 150, suffix: '+', label: 'Projecten Voltooid', icon: CheckCircle2 },
     { value: 3, suffix: '+', label: 'Jaren Ervaring', icon: Calendar },
-    { value: 4.8, suffix: '', label: 'Gemiddelde Score', icon: Star, decimals: 1 },
+    { value: 5.0, suffix: '', label: 'Gemiddelde Score', icon: Star, decimals: 1 },
     { value: 100, suffix: '%', label: 'Bereschoon', icon: Sparkles },
 ];
 
 // Animated counter component
 const AnimatedCounter = ({ value, suffix = '', decimals = 0, inView }) => {
-    const spring = useSpring(0, { 
-        stiffness: 50, 
+    const spring = useSpring(0, {
+        stiffness: 50,
         damping: 20,
-        duration: 2000 
+        duration: 2000
     });
-    
-    const display = useTransform(spring, (current) => 
+
+    const display = useTransform(spring, (current) =>
         decimals > 0 ? current.toFixed(decimals) : Math.floor(current)
     );
 
@@ -47,25 +47,25 @@ const Stats = () => {
 
             <div className="container mx-auto px-6 relative z-10" ref={ref}>
                 {/* Stats Grid */}
-                <motion.div 
+                <motion.div
                     className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8"
                     variants={staggerContainer}
                     initial="hidden"
                     animate={isInView ? "visible" : "hidden"}
                 >
                     {stats.map((stat, index) => (
-                        <motion.div 
+                        <motion.div
                             key={index}
                             variants={scaleIn}
                             className="relative group text-center"
                         >
-                            <motion.div 
+                            <motion.div
                                 className="relative p-6 md:p-8"
                                 whileHover={{ y: -4 }}
                                 transition={{ duration: 0.3 }}
                             >
                                 {/* Icon */}
-                                <motion.div 
+                                <motion.div
                                     className="mb-4 flex justify-center"
                                     whileHover={{ scale: 1.1 }}
                                     transition={{ duration: 0.3 }}
@@ -77,14 +77,14 @@ const Stats = () => {
 
                                 {/* Animated Value */}
                                 <div className="text-4xl md:text-5xl font-bold mb-2 tracking-tight text-white">
-                                    <AnimatedCounter 
-                                        value={stat.value} 
+                                    <AnimatedCounter
+                                        value={stat.value}
                                         suffix={stat.suffix}
                                         decimals={stat.decimals || 0}
                                         inView={isInView}
                                     />
                                 </div>
-                                
+
                                 {/* Label */}
                                 <div className="text-sm md:text-base text-white/70 font-medium">
                                     {stat.label}

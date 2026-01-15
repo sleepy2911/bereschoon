@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { ArrowRight, ArrowLeft, Check, Loader2, Mail, Grid3X3, Home, Droplets, Leaf, Upload, X, Camera } from 'lucide-react';
+import { ArrowRight, ArrowLeft, Check, Loader2, Mail, Grid3X3, Home, Droplets, Leaf, Upload, X, Camera, User, Phone, MapPin, MessageSquare } from 'lucide-react';
 
 const ContactForm = ({ preselectedService = null }) => {
     const [step, setStep] = useState(preselectedService ? 2 : 1);
@@ -55,8 +55,8 @@ const ContactForm = ({ preselectedService = null }) => {
     };
 
     const handleOptionToggle = (optionId) => {
-        setSelectedOptions(prev => 
-            prev.includes(optionId) 
+        setSelectedOptions(prev =>
+            prev.includes(optionId)
                 ? prev.filter(id => id !== optionId)
                 : [...prev, optionId]
         );
@@ -161,14 +161,14 @@ const ContactForm = ({ preselectedService = null }) => {
     // Parse address string into components (simple parsing)
     const parseAddress = (address) => {
         if (!address) return { street: null, postcode: null, city: null };
-        
+
         // Try to extract postcode (Dutch format: 1234AB)
         const postcodeMatch = address.match(/\b\d{4}\s?[A-Z]{2}\b/i);
         let postcode = postcodeMatch ? postcodeMatch[0].replace(/\s/g, '').toUpperCase() : null;
-        
+
         // Remove postcode from address
         let remaining = address.replace(/\b\d{4}\s?[A-Z]{2}\b/i, '').trim();
-        
+
         // Try to split on comma (format: "street, city")
         const parts = remaining.split(',').map(p => p.trim());
         let street = parts[0] || null;
@@ -197,7 +197,7 @@ const ContactForm = ({ preselectedService = null }) => {
             if (!baseUrl) {
                 throw new Error('VITE_SUPABASE_URL is not configured');
             }
-            
+
             // Explicitly use submit-service-request function
             const edgeFunctionUrl = `${baseUrl}/functions/v1/submit-service-request`;
 
@@ -215,7 +215,7 @@ const ContactForm = ({ preselectedService = null }) => {
             if (addressParts.city) formDataToSend.append('city', addressParts.city);
             if (formData.toelichting) formDataToSend.append('message', formData.toelichting);
             if (formData.vierkanteMeters) formDataToSend.append('square_meters', formData.vierkanteMeters);
-            
+
             // Add service options
             if (selectedOptions.length > 0) {
                 formDataToSend.append('service_options', JSON.stringify(selectedOptions));
@@ -245,7 +245,7 @@ const ContactForm = ({ preselectedService = null }) => {
             });
 
             const responseData = await response.json().catch(() => ({ error: 'Kon response niet lezen' }));
-            
+
             if (!response.ok) {
                 console.error('Server error response:', responseData);
                 // Show detailed error including logs
@@ -254,14 +254,14 @@ const ContactForm = ({ preselectedService = null }) => {
                 if (responseData.code) errorMessage += ` (code: ${responseData.code})`;
                 if (responseData.details) errorMessage += ` - ${responseData.details}`;
                 if (responseData.hint) errorMessage += ` [Hint: ${responseData.hint}]`;
-                
+
                 // Log the full details including server logs
                 if (responseData.logs) {
                     console.log('=== Server Logs ===');
                     responseData.logs.forEach(log => console.log(log));
                     console.log('=== End Server Logs ===');
                 }
-                
+
                 throw new Error(errorMessage);
             }
 
@@ -326,20 +326,40 @@ const ContactForm = ({ preselectedService = null }) => {
     const displayStep = preselectedService ? step - 1 : step;
 
     return (
-        <div className="bg-white rounded-xl p-8 shadow-lg">
-            <h2 className="text-3xl font-bold text-foreground mb-2">Keuzehulp</h2>
-            <p className="text-muted-foreground mb-6">Stap {displayStep} van {totalSteps}</p>
+        <div className="p-6 md:p-8">
+            <div className="mb-8">
+                <h2 className="text-3xl font-bold text-foreground mb-2">Stel uw aanvraag samen</h2>
+                <p className="text-muted-foreground">Binnen 1 minuut ingevuld – wij reageren binnen 24 uur</p>
+            </div>
+            <p className="text-muted-foreground mb-6 font-medium text-sm uppercase tracking-wider text-primary">Stap {displayStep} van {totalSteps}</p>
 
-            {/* Progress Bar */}
-            <div className="flex space-x-2 mb-8">
-                {Array.from({ length: totalSteps }, (_, i) => i + 1).map((s) => (
-                    <div
-                        key={s}
-                        className={`h-2 flex-1 rounded-full transition-all duration-500 ${
-                            s <= displayStep ? 'bg-primary' : 'bg-gray-200'
-                        }`}
-                    />
-                ))}
+            {/* Progress Bar - Numbered Steps */}
+            <div className="mb-10">
+                <div className="flex items-center justify-between relative px-4">
+                    {/* Line behind steps */}
+                    <div className="absolute left-0 top-1/2 -translate-y-1/2 w-full h-1 bg-gray-100 -z-10" />
+
+                    {Array.from({ length: totalSteps }, (_, i) => i + 1).map((s) => (
+                        <div key={s} className="flex flex-col items-center group">
+                            <div
+                                className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-lg border-4 transition-all duration-300 ${s < displayStep
+                                    ? 'bg-green-500 border-green-500 text-white'
+                                    : s === displayStep
+                                        ? 'bg-primary border-primary text-white scale-110 shadow-lg shadow-primary/30'
+                                        : 'bg-white border-gray-200 text-gray-300'
+                                    }`}
+                            >
+                                {s < displayStep ? <Check size={20} /> : s}
+                            </div>
+                            {/* Optional: Add label for current step if needed, or just numbers */}
+                            {s === displayStep && (
+                                <span className="absolute -bottom-8 text-xs font-bold text-primary whitespace-nowrap bg-primary/10 px-2 py-1 rounded-full">
+                                    Stap {s}
+                                </span>
+                            )}
+                        </div>
+                    ))}
+                </div>
             </div>
 
             {error && (
@@ -359,11 +379,10 @@ const ContactForm = ({ preselectedService = null }) => {
                                 <button
                                     key={service.id}
                                     onClick={() => handleServiceSelect(service.id)}
-                                    className={`p-6 border-2 rounded-xl text-left transition-all hover:scale-105 ${
-                                        selectedService === service.id
-                                            ? 'border-primary bg-primary/5 shadow-lg'
-                                            : 'border-gray-200 hover:border-primary/50'
-                                    }`}
+                                    className={`p-6 border-2 rounded-xl text-left transition-all hover:scale-105 ${selectedService === service.id
+                                        ? 'border-primary bg-primary/5 shadow-lg'
+                                        : 'border-gray-200 hover:border-primary/50'
+                                        }`}
                                 >
                                     <div className="flex items-center justify-between mb-3">
                                         <Icon className={`${selectedService === service.id ? 'text-primary' : 'text-gray-400'}`} size={32} />
@@ -383,18 +402,17 @@ const ContactForm = ({ preselectedService = null }) => {
             {step === 2 && (
                 <div className="animate-in slide-in-from-right-8 duration-500">
                     <h3 className="text-2xl font-bold text-foreground mb-6">{getStep2Title()}</h3>
-                    
+
                     {selectedService === 'onkruidbeheersing' ? (
                         <div className="space-y-3">
                             {onkruidPlannen.map((plan) => (
                                 <button
                                     key={plan.id}
                                     onClick={() => handlePlanSelect(plan.id)}
-                                    className={`w-full p-5 border-2 rounded-xl text-left transition-all ${
-                                        selectedPlan === plan.id
-                                            ? 'border-primary bg-primary/5 shadow-lg'
-                                            : 'border-gray-200 hover:border-primary/50'
-                                    }`}
+                                    className={`w-full p-5 border-2 rounded-xl text-left transition-all ${selectedPlan === plan.id
+                                        ? 'border-primary bg-primary/5 shadow-lg'
+                                        : 'border-gray-200 hover:border-primary/50'
+                                        }`}
                                 >
                                     <div className="flex items-center justify-between">
                                         <span className="font-medium text-foreground">{plan.label}</span>
@@ -411,11 +429,10 @@ const ContactForm = ({ preselectedService = null }) => {
                                 <button
                                     key={option.id}
                                     onClick={() => handleOptionToggle(option.id)}
-                                    className={`w-full p-5 border-2 rounded-xl text-left transition-all ${
-                                        selectedOptions.includes(option.id)
-                                            ? 'border-primary bg-primary/5 shadow-lg'
-                                            : 'border-gray-200 hover:border-primary/50'
-                                    }`}
+                                    className={`w-full p-5 border-2 rounded-xl text-left transition-all ${selectedOptions.includes(option.id)
+                                        ? 'border-primary bg-primary/5 shadow-lg'
+                                        : 'border-gray-200 hover:border-primary/50'
+                                        }`}
                                 >
                                     <div className="flex items-center justify-between">
                                         <span className="font-medium text-foreground">{option.label}</span>
@@ -432,11 +449,10 @@ const ContactForm = ({ preselectedService = null }) => {
                                 <button
                                     key={option.id}
                                     onClick={() => handleOptionToggle(option.id)}
-                                    className={`w-full p-5 border-2 rounded-xl text-left transition-all ${
-                                        selectedOptions.includes(option.id)
-                                            ? 'border-primary bg-primary/5 shadow-lg'
-                                            : 'border-gray-200 hover:border-primary/50'
-                                    }`}
+                                    className={`w-full p-5 border-2 rounded-xl text-left transition-all ${selectedOptions.includes(option.id)
+                                        ? 'border-primary bg-primary/5 shadow-lg'
+                                        : 'border-gray-200 hover:border-primary/50'
+                                        }`}
                                 >
                                     <div className="flex items-center justify-between">
                                         <span className="font-medium text-foreground">{option.label}</span>
@@ -474,7 +490,7 @@ const ContactForm = ({ preselectedService = null }) => {
                 <div className="animate-in slide-in-from-right-8 duration-500">
                     <h3 className="text-2xl font-bold text-foreground mb-2">Geschatte vierkante meters</h3>
                     <p className="text-muted-foreground mb-6">Dit veld is optioneel. U kunt deze stap overslaan.</p>
-                    
+
                     <div className="mb-8">
                         <label htmlFor="vierkanteMeters" className="block text-sm font-medium text-foreground mb-2">
                             Vierkante meters
@@ -524,7 +540,7 @@ const ContactForm = ({ preselectedService = null }) => {
                 <div className="animate-in slide-in-from-right-8 duration-500">
                     <h3 className="text-2xl font-bold text-foreground mb-2">Foto's toevoegen</h3>
                     <p className="text-muted-foreground mb-6">U kunt meerdere foto's uploaden (optioneel). U kunt deze stap overslaan.</p>
-                    
+
                     <div className="mb-6">
                         <input
                             ref={fileInputRef}
@@ -534,7 +550,7 @@ const ContactForm = ({ preselectedService = null }) => {
                             onChange={handlePhotoUpload}
                             className="hidden"
                         />
-                        
+
                         <button
                             type="button"
                             onClick={() => fileInputRef.current?.click()}
@@ -599,83 +615,98 @@ const ContactForm = ({ preselectedService = null }) => {
             {step === 5 && (
                 <form onSubmit={handleSubmit} className="animate-in slide-in-from-right-8 duration-500">
                     <h3 className="text-2xl font-bold text-foreground mb-6">Uw contactgegevens</h3>
-                    
+
                     <div className="space-y-6">
                         <div>
                             <label htmlFor="naam" className="block text-sm font-medium text-foreground mb-2">
                                 Naam <span className="text-primary">*</span>
                             </label>
-                            <input
-                                type="text"
-                                id="naam"
-                                name="naam"
-                                required
-                                value={formData.naam}
-                                onChange={handleInputChange}
-                                placeholder="Volledige naam"
-                                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-                            />
+                            <div className="relative">
+                                <User className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
+                                <input
+                                    type="text"
+                                    id="naam"
+                                    name="naam"
+                                    required
+                                    value={formData.naam}
+                                    onChange={handleInputChange}
+                                    placeholder="Volledige naam"
+                                    className="w-full pl-12 pr-4 py-4 border border-gray-200 rounded-lg focus:outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all text-base placeholder:text-muted-foreground/60"
+                                />
+                            </div>
                         </div>
 
                         <div>
                             <label htmlFor="email" className="block text-sm font-medium text-foreground mb-2">
                                 E-mailadres <span className="text-primary">*</span>
                             </label>
-                            <input
-                                type="email"
-                                id="email"
-                                name="email"
-                                required
-                                value={formData.email}
-                                onChange={handleInputChange}
-                                placeholder="uw@email.nl"
-                                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-                            />
+                            <div className="relative">
+                                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
+                                <input
+                                    type="email"
+                                    id="email"
+                                    name="email"
+                                    required
+                                    value={formData.email}
+                                    onChange={handleInputChange}
+                                    placeholder="uw@email.nl"
+                                    className="w-full pl-12 pr-4 py-4 border border-gray-200 rounded-lg focus:outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all text-base placeholder:text-muted-foreground/60"
+                                />
+                            </div>
                         </div>
 
                         <div>
                             <label htmlFor="telefoon" className="block text-sm font-medium text-foreground mb-2">
                                 Telefoonnummer <span className="text-gray-400 text-sm">(optioneel)</span>
                             </label>
-                            <input
-                                type="tel"
-                                id="telefoon"
-                                name="telefoon"
-                                value={formData.telefoon}
-                                onChange={handleInputChange}
-                                placeholder="+31 6 12345678"
-                                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-                            />
+                            <div className="relative">
+                                <Phone className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
+                                <input
+                                    type="tel"
+                                    id="telefoon"
+                                    name="telefoon"
+                                    value={formData.telefoon}
+                                    onChange={handleInputChange}
+                                    placeholder="+31 6 12345678"
+                                    className="w-full pl-12 pr-4 py-4 border border-gray-200 rounded-lg focus:outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all text-base placeholder:text-muted-foreground/60"
+                                />
+                            </div>
                         </div>
 
                         <div>
                             <label htmlFor="adres" className="block text-sm font-medium text-foreground mb-2">
                                 Adres <span className="text-gray-400 text-sm">(optioneel)</span>
                             </label>
-                            <input
-                                type="text"
-                                id="adres"
-                                name="adres"
-                                value={formData.adres}
-                                onChange={handleInputChange}
-                                placeholder="Straatnaam + huisnummer, plaats"
-                                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-                            />
+                            <div className="relative">
+                                <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
+                                <input
+                                    type="text"
+                                    id="adres"
+                                    name="adres"
+                                    value={formData.adres}
+                                    onChange={handleInputChange}
+                                    placeholder="Straatnaam + huisnummer, plaats"
+                                    className="w-full pl-12 pr-4 py-4 border border-gray-200 rounded-lg focus:outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all text-base placeholder:text-muted-foreground/60"
+                                />
+                            </div>
                         </div>
 
                         <div>
                             <label htmlFor="toelichting" className="block text-sm font-medium text-foreground mb-2">
                                 Toelichting <span className="text-gray-400 text-sm">(optioneel)</span>
                             </label>
-                            <textarea
-                                id="toelichting"
-                                name="toelichting"
-                                rows={4}
-                                value={formData.toelichting}
-                                onChange={handleInputChange}
-                                placeholder="Heeft u aanvullende vragen of opmerkingen?"
-                                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent resize-none"
-                            />
+                            <div className="relative">
+                                <MessageSquare className="absolute left-4 top-4 text-gray-400" size={20} />
+                                <textarea
+                                    id="toelichting"
+                                    name="toelichting"
+                                    rows={4}
+                                    value={formData.toelichting}
+                                    onChange={handleInputChange}
+                                    placeholder="Heeft u aanvullende vragen of opmerkingen?"
+                                    className="w-full pl-12 pr-4 py-4 border border-gray-200 rounded-lg focus:outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all text-base placeholder:text-muted-foreground/60 resize-none"
+                                />
+                            </div>
                         </div>
                     </div>
 
