@@ -2,7 +2,11 @@ import React from 'react';
 import { ArrowRight, Clock, MessageSquare } from 'lucide-react';
 import { motion } from 'framer-motion';
 
-const CallToAction = () => {
+const CallToAction = ({
+    title = "Klaar om uw oprit",
+    highlight = "professioneel te laten reinigen?",
+    description = "Plan direct een inspectie in en ontvang binnen 24 uur een voorstel op maat. Wij zorgen dat alles weer straalt."
+}) => {
     return (
         <section className="py-24 bg-white relative overflow-hidden border-t border-gray-100">
             {/* Background Glows - Adjusted for Light Mode */}
@@ -29,9 +33,9 @@ const CallToAction = () => {
                         transition={{ delay: 0.1 }}
                         className="text-4xl md:text-5xl font-bold text-secondary mb-6 leading-tight"
                     >
-                        Klaar om uw oprit<br />
+                        {title}<br />
                         <span className="text-primary">
-                            professioneel te laten reinigen?
+                            {highlight}
                         </span>
                     </motion.h2>
 
@@ -42,7 +46,7 @@ const CallToAction = () => {
                         transition={{ delay: 0.2 }}
                         className="text-gray-600 text-lg mb-12 leading-relaxed max-w-2xl mx-auto"
                     >
-                        Plan direct een inspectie in en ontvang binnen 24 uur een voorstel op maat. Wij zorgen dat alles weer straalt.
+                        {description}
                     </motion.p>
 
                     <motion.div

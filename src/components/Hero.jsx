@@ -15,7 +15,7 @@ const Hero = () => {
     const [currentPairIndex, setCurrentPairIndex] = useState(0);
     const [showAfter, setShowAfter] = useState(false);
     const { scrollY } = useScroll();
-    
+
     // Parallax effect
     const backgroundY = useTransform(scrollY, [0, 500], [0, 150]);
     const contentY = useTransform(scrollY, [0, 500], [0, 50]);
@@ -52,7 +52,7 @@ const Hero = () => {
     return (
         <section className="relative h-screen flex items-center justify-center overflow-hidden bg-secondary">
             {/* Parallax Background */}
-            <motion.div 
+            <motion.div
                 className="absolute inset-0 z-0"
                 style={{ y: backgroundY }}
             >
@@ -60,7 +60,7 @@ const Hero = () => {
                 <motion.img
                     src={currentPair.before}
                     alt="Voor"
-                    className="absolute inset-0 w-full h-full object-cover"
+                    className="absolute inset-0 w-full h-full object-cover object-[center_75%]"
                     initial={{ opacity: 1, scale: 1 }}
                     animate={{ opacity: 1, scale: 1 }}
                     transition={{ duration: 0.8, ease: "easeOut" }}
@@ -71,7 +71,7 @@ const Hero = () => {
             </motion.div>
 
             {/* Main Content */}
-            <motion.div 
+            <motion.div
                 className="relative z-20 text-center px-6 max-w-4xl mx-auto"
                 style={{ y: contentY, opacity }}
                 variants={heroStagger}
@@ -79,7 +79,7 @@ const Hero = () => {
                 animate="visible"
             >
                 {/* Heading with spray clean effect */}
-                <motion.h1 
+                <motion.h1
                     variants={heroText}
                     className="relative text-5xl md:text-7xl lg:text-8xl font-bold mb-8 tracking-tighter"
                 >
@@ -99,7 +99,7 @@ const Hero = () => {
                 </motion.h1>
 
                 {/* Subtitle */}
-                <motion.p 
+                <motion.p
                     variants={heroText}
                     className="text-lg md:text-xl text-gray-200 mb-10 max-w-2xl mx-auto leading-relaxed"
                 >
@@ -108,7 +108,7 @@ const Hero = () => {
                 </motion.p>
 
                 {/* CTA Buttons */}
-                <motion.div 
+                <motion.div
                     variants={heroText}
                     className="flex flex-col sm:flex-row items-center justify-center gap-4"
                 >
@@ -116,7 +116,7 @@ const Hero = () => {
                         whileHover={{ scale: 1.02, y: -2 }}
                         whileTap={{ scale: 0.98 }}
                     >
-                        <Link 
+                        <Link
                             to="/contact"
                             className="group bg-primary text-white px-8 py-4 rounded-full text-lg font-bold hover:bg-primary/90 transition-all flex items-center shadow-[0_0_30px_rgba(132,204,22,0.4)] hover:shadow-[0_0_50px_rgba(132,204,22,0.6)] btn-shine"
                         >
@@ -144,17 +144,16 @@ const Hero = () => {
                             setCurrentPairIndex(index);
                             setShowAfter(false);
                         }}
-                        className={`h-1.5 rounded-full transition-all duration-300 ${
-                            index === currentPairIndex 
-                                ? 'bg-primary w-6' 
-                                : 'bg-white/40 w-1.5 hover:bg-white/70'
-                        }`}
+                        className={`h-1.5 rounded-full transition-all duration-300 ${index === currentPairIndex
+                            ? 'bg-primary w-6'
+                            : 'bg-white/40 w-1.5 hover:bg-white/70'
+                            }`}
                     />
                 ))}
             </div>
 
             {/* Scroll Indicator */}
-            <motion.div 
+            <motion.div
                 className="absolute bottom-8 left-1/2 -translate-x-1/2 z-20"
                 animate={{ y: [0, 8, 0] }}
                 transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}

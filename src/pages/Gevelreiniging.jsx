@@ -84,7 +84,11 @@ const Gevelreiniging = () => {
 
             {/* Final CTA Container */}
             <div className="relative z-10 bg-white">
-                <CallToAction />
+                <CallToAction
+                    title="Klaar om uw gevel"
+                    highlight="weer te laten stralen?"
+                    description="Plan direct een inspectie in en ontvang binnen 24 uur een voorstel op maat. Wij reinigen uw gevel duurzaam en veilig."
+                />
             </div>
         </PageTransition>
     );

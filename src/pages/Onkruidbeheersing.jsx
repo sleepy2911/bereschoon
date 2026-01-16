@@ -84,7 +84,11 @@ const Onkruidbeheersing = () => {
 
             {/* Final CTA Container */}
             <div className="relative z-10 bg-white">
-                <CallToAction />
+                <CallToAction
+                    title="Klaar voor een"
+                    highlight="onkruidvrije tuin?"
+                    description="Kies voor gemak en verzorging. Plan direct een inspectie in en wij stellen een onderhoudsplan op dat bij u past."
+                />
             </div>
         </PageTransition>
     );
