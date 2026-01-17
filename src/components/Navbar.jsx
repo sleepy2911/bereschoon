@@ -174,20 +174,26 @@ const Navbar = () => {
                 </div>
 
                 {/* Mobile Actions Wrapper */}
-                <div className="flex items-center gap-2 md:hidden">
+                <div className="flex items-center gap-6 md:hidden">
                     {/* Shop Icons - only show on shop pages */}
                     {isShopPage && (
-                        <div className="flex items-center gap-1">
+                        <div className="flex items-center gap-2">
                             <Link
                                 to="/winkel/account"
-                                className={`p-2 rounded-full transition-colors ${isShopPage ? 'text-gray-600 hover:text-primary hover:bg-gray-100' : ''}`}
+                                className={`p-2 rounded-full transition-colors ${isScrolled ? 'text-gray-600 hover:text-primary hover:bg-gray-100' :
+                                    hasHeroSection ? 'text-white/80 hover:text-white hover:bg-white/10' :
+                                        'text-gray-600 hover:text-primary hover:bg-gray-100'
+                                    }`}
                             >
                                 <User className="w-5 h-5" />
                             </Link>
 
                             <button
                                 onClick={openCart}
-                                className={`p-2 rounded-full transition-colors relative ${isShopPage ? 'text-gray-600 hover:text-primary hover:bg-gray-100' : ''}`}
+                                className={`p-2 rounded-full transition-colors relative ${isScrolled ? 'text-gray-600 hover:text-primary hover:bg-gray-100' :
+                                    hasHeroSection ? 'text-white/80 hover:text-white hover:bg-white/10' :
+                                        'text-gray-600 hover:text-primary hover:bg-gray-100'
+                                    }`}
                             >
                                 <ShoppingBag className="w-5 h-5" />
                                 {itemCount > 0 && (
@@ -201,7 +207,7 @@ const Navbar = () => {
 
                     {/* Mobile Menu Button */}
                     <button
-                        className="text-foreground"
+                        className="md:hidden text-foreground p-2"
                         onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
                     >
                         {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}

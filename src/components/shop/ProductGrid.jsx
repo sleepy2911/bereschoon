@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Loader2, ShoppingBag, Play, Check, RefreshCw } from 'lucide-react';
+import { Loader2, ShoppingBag, Play, Check, RefreshCw, Truck, Clock, Shield } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { useCartStore } from '../../stores/cartStore';
 
@@ -128,7 +128,7 @@ const ProductGrid = () => {
   }
 
   return (
-    <div className="space-y-16">
+    <div className="space-y-8 lg:space-y-16">
       <AnimatePresence mode="popLayout">
         {products.map((product, index) => {
           const discountPercentage = product.compare_price
@@ -146,8 +146,8 @@ const ProductGrid = () => {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -30 }}
               transition={{ delay: index * 0.1, layout: { duration: 0.3 } }}
-              className={`flex flex-col ${isEven ? 'lg:flex-row' : 'lg:flex-row-reverse'} items-center gap-8 lg:gap-16 relative ${isRecentlyUpdated ? 'ring-2 ring-primary ring-offset-4 rounded-3xl' : ''
-                }`}
+              className={`flex flex-col ${isEven ? 'lg:flex-row' : 'lg:flex-row-reverse'} items-center gap-4 lg:gap-16 relative ${isRecentlyUpdated ? 'ring-2 ring-primary ring-offset-4 rounded-3xl' : ''
+                } bg-white lg:bg-transparent rounded-2xl lg:p-0`}
             >
               {/* Update indicator */}
               <AnimatePresence>
@@ -164,16 +164,16 @@ const ProductGrid = () => {
                 )}
               </AnimatePresence>
 
-              {/* Mobile Title (visible only on mobile) */}
-              <div className="w-full lg:hidden text-left mb-2">
-                <h3 className="text-xl font-bold text-gray-900 truncate">
+              {/* Mobile Title (Top, Compact, Left-Aligned) */}
+              <div className="w-full lg:hidden text-left mb-2 px-1">
+                <h3 className="text-xl font-bold text-gray-900 leading-tight">
                   {product.name}
                 </h3>
               </div>
 
               {/* Video/Image Side */}
               <div className="lg:w-1/2 w-full">
-                <div className="relative rounded-2xl overflow-hidden shadow-2xl aspect-square md:aspect-[4/3] bg-gray-100 group">
+                <div className="relative rounded-2xl overflow-hidden shadow-sm lg:shadow-2xl aspect-square md:aspect-[4/3] bg-gray-100 group">
                   {product.video_url ? (
                     <video
                       autoPlay
@@ -197,14 +197,14 @@ const ProductGrid = () => {
                   )}
 
                   {/* Badges */}
-                  <div className="absolute top-4 left-4 flex flex-col gap-2">
+                  <div className="absolute top-3 left-3 flex flex-col gap-1.5">
                     {product.featured && (
-                      <span className="bg-primary text-white text-sm font-bold px-4 py-1.5 rounded-full shadow-lg">
+                      <span className="bg-primary text-white text-xs font-bold px-3 py-1 rounded-full shadow-md">
                         Nieuw
                       </span>
                     )}
                     {discountPercentage && (
-                      <span className="bg-red-500 text-white text-sm font-bold px-4 py-1.5 rounded-full shadow-lg">
+                      <span className="bg-red-500 text-white text-xs font-bold px-3 py-1 rounded-full shadow-md">
                         -{discountPercentage}%
                       </span>
                     )}
@@ -212,19 +212,19 @@ const ProductGrid = () => {
 
                   {/* Video indicator */}
                   {product.video_url && (
-                    <div className="absolute bottom-4 right-4 bg-black/50 backdrop-blur-sm px-3 py-1.5 rounded-full flex items-center gap-2">
-                      <Play className="w-4 h-4 text-white fill-white" />
-                      <span className="text-white text-sm font-medium">Video</span>
+                    <div className="absolute bottom-3 right-3 bg-black/50 backdrop-blur-sm px-2.5 py-1 rounded-full flex items-center gap-1.5">
+                      <Play className="w-3 h-3 text-white fill-white" />
+                      <span className="text-white text-xs font-medium">Video</span>
                     </div>
                   )}
 
-                  {/* Glow effect */}
-                  <div className="absolute -inset-4 bg-gradient-to-tr from-primary/20 to-accent/20 rounded-full blur-3xl -z-10 opacity-70"></div>
+                  {/* Glow effect (Desktop only to save performance on mobile) */}
+                  <div className="hidden lg:block absolute -inset-4 bg-gradient-to-tr from-primary/20 to-accent/20 rounded-full blur-3xl -z-10 opacity-70"></div>
                 </div>
               </div>
 
               {/* Content Side */}
-              <div className="lg:w-1/2 w-full space-y-4 lg:space-y-6">
+              <div className="lg:w-1/2 w-full space-y-3 lg:space-y-6 px-1">
                 {product.category && (
                   <span className="hidden lg:block text-sm text-primary font-medium uppercase tracking-wide">
                     {product.category}
@@ -236,25 +236,57 @@ const ProductGrid = () => {
                   {product.name}
                 </h3>
 
-                {/* Mobile: Price + Shopping Icon Row */}
+                {/* Mobile: Price & Quick Add Row (New) */}
                 <div className="flex lg:hidden items-center justify-between">
-                  <div className="flex items-baseline gap-2">
-                    <span className="text-2xl font-bold text-primary">
-                      €{product.price?.toFixed(2) || '0.00'}
-                    </span>
-                    {product.compare_price && (
-                      <span className="text-lg text-gray-400 line-through">
-                        €{product.compare_price.toFixed(2)}
-                      </span>
-                    )}
+                  {/* Price & Reviews Grouped */}
+                  <div className="flex flex-col items-start gap-1">
+                    <div className="flex items-center gap-2">
+                      <div className="flex items-baseline gap-2">
+                        <span className="text-xl font-bold text-gray-900">
+                          €{product.price?.toFixed(2) || '0.00'}
+                        </span>
+                        {product.compare_price && (
+                          <span className="text-sm text-gray-400 line-through">
+                            €{product.compare_price.toFixed(2)}
+                          </span>
+                        )}
+                      </div>
+                      {/* Reviews Inline with Price */}
+                      <div className="flex items-center gap-1">
+                        <div className="flex text-yellow-400">
+                          <Check size={12} className="hidden" />
+                          {[1, 2, 3, 4, 5].map((star) => (
+                            <span key={star} className="text-xs">★</span>
+                          ))}
+                        </div>
+                        <span className="text-[10px] text-gray-500 font-medium">(50+)</span>
+                      </div>
+                    </div>
                   </div>
+
                   <button
                     onClick={() => handleAddToCart(product)}
                     disabled={product.stock === 0}
-                    className="bg-primary text-white p-3 rounded-xl shadow-lg active:scale-95 transition-transform disabled:bg-gray-300"
+                    className="h-10 w-10 flex items-center justify-center bg-gray-900 text-white rounded-full shadow-md active:scale-95 transition-transform disabled:bg-gray-300"
                   >
                     <ShoppingBag className="w-5 h-5" />
                   </button>
+                </div>
+
+                {/* Mobile: USPs (Restored, Centered) */}
+                <div className="flex lg:hidden flex-wrap justify-center gap-x-3 gap-y-1 border-t border-gray-100 pt-3 mt-1">
+                  <div className="flex items-center gap-1.5 text-xs text-gray-600">
+                    <Truck size={12} className="text-green-600" />
+                    <span>Gratis verzending</span>
+                  </div>
+                  <div className="flex items-center gap-1.5 text-xs text-gray-600">
+                    <Clock size={12} className="text-blue-600" />
+                    <span>1-3 dagen</span>
+                  </div>
+                  <div className="flex items-center gap-1.5 text-xs text-gray-600">
+                    <Shield size={12} className="text-primary" />
+                    <span>Veilig betalen</span>
+                  </div>
                 </div>
 
                 {/* Desktop Price */}
@@ -269,12 +301,12 @@ const ProductGrid = () => {
                   )}
                 </div>
 
-                {/* Reviews */}
+                {/* Desktop Reviews Link */}
                 <a
                   href="https://www.google.com/search?q=Bereschoon+Helmond+reviews"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center gap-2 group w-fit"
+                  className="hidden lg:flex items-center gap-2 group w-fit"
                 >
                   <div className="flex gap-0.5">
                     {[1, 2, 3, 4, 5].map((star) => (
@@ -286,8 +318,9 @@ const ProductGrid = () => {
                   </span>
                 </a>
 
+                {/* Description */}
                 {product.short_description && (
-                  <p className="text-lg text-gray-600 leading-relaxed">
+                  <p className={`text-sm lg:text-lg text-gray-500 lg:text-gray-600 leading-relaxed ${"line-clamp-2 lg:line-clamp-none lg:text-left"}`}>
                     {product.short_description}
                   </p>
                 )}
@@ -324,11 +357,11 @@ const ProductGrid = () => {
                   </Link>
                 </div>
 
-                {/* Mobile: Link to detail */}
-                <div className="lg:hidden pt-2">
+                {/* Mobile: Link to detail (Ghost Button style) */}
+                <div className="lg:hidden pt-1">
                   <Link
                     to={`/winkel/product/${product.slug}`}
-                    className="block w-full py-3 rounded-xl font-medium border border-gray-200 text-center text-gray-600 hover:text-primary hover:border-primary transition-colors"
+                    className="block w-full py-2.5 rounded-lg text-sm font-medium border border-gray-200 text-center text-gray-600 hover:bg-gray-50 hover:text-gray-900 transition-colors"
                   >
                     Meer details
                   </Link>
@@ -342,7 +375,7 @@ const ProductGrid = () => {
                 )}
 
                 <p className="hidden lg:block text-sm text-gray-500">
-                  * Vandaag besteld, morgen in huis. Gratis verzending vanaf €50.
+                  * Gratis verzending vanaf €50.
                 </p>
               </div>
             </motion.div>
