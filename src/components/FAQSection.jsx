@@ -39,10 +39,10 @@ const FAQItem = ({ icon: Icon, question, answer, isOpen, toggle }) => {
     );
 };
 
-const FAQSection = () => {
+const FAQSection = ({ questions, title, subtitle, className = "bg-gray-50" }) => {
     const [openIndex, setOpenIndex] = useState(0);
 
-    const questions = [
+    const defaultQuestions = [
         {
             icon: Clock,
             question: "Hoelang blijft het resultaat mooi?",
@@ -65,6 +65,8 @@ const FAQSection = () => {
         }
     ];
 
+    const displayQuestions = questions || defaultQuestions;
+
     const toggleFAQ = (index) => {
         setOpenIndex(openIndex === index ? null : index);
     };
@@ -83,19 +85,19 @@ const FAQSection = () => {
     };
 
     return (
-        <section className="py-12 md:py-24 bg-gray-50">
+        <section className={`py-12 md:py-24 ${className}`}>
             <div className="container mx-auto px-6 max-w-5xl">
                 <div className="text-center mb-10 md:mb-16">
                     <span className="text-primary font-bold tracking-wider text-sm uppercase mb-2 block">
-                        Veelgestelde Vragen
+                        {subtitle || "Veelgestelde Vragen"}
                     </span>
                     <h2 className="text-3xl md:text-4xl font-bold text-foreground tracking-tight">
-                        Alles wat u moet weten
+                        {title || "Alles wat u moet weten"}
                     </h2>
                 </div>
 
                 <div className="grid md:grid-cols-2 gap-3 md:gap-6">
-                    {questions.map((item, index) => (
+                    {displayQuestions.map((item, index) => (
                         <div
                             key={index}
                             className="h-full"

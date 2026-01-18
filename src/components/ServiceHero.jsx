@@ -1,27 +1,44 @@
-import React from 'react';
-import { motion, useScroll, useTransform } from 'framer-motion';
+import { motion, useScroll, useTransform, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { ChevronDown, ArrowRight, Check } from 'lucide-react';
+import { useState, useEffect } from 'react';
 import LogoMarquee from './LogoMarquee';
 import WaveDivider from './effects/WaveDivider';
 import { heroStagger, heroText } from '../utils/animations';
 import { formatReviewCount } from '../utils/formatters';
+import { GOOGLE_REVIEW_DATA } from '../data/reviews';
 
 const ServiceHero = ({
     title,
     subtitle,
     description,
     image,
+    images = [], // New prop for slideshow
     features = [],
     ctaText = "Direct Aanvragen",
     ctaHref = "#formulier",
     showOverlay = true, // New prop for extra overlay
-    reviewData = null, // { score: "4.8", count: 126, text: "..." }
+    reviewData = GOOGLE_REVIEW_DATA,
     usps = [], // Array of { icon: Icon, text: "..." }
     companyLogos = [], // New prop for logo marquee
-    mobileDescription = null // New prop for shorter mobile text
+    mobileDescription = null, // New prop for shorter mobile text
+    maxWidth = "max-w-6xl" // Allow overriding the container width
 }) => {
     const { scrollY } = useScroll();
+    const [currentImageIndex, setCurrentImageIndex] = useState(0);
+
+    // Slideshow timer
+    useEffect(() => {
+        if (images && images.length > 1) {
+            const interval = setInterval(() => {
+                setCurrentImageIndex((prev) => (prev + 1) % images.length);
+            }, 10000); // 10 seconds
+            return () => clearInterval(interval);
+        }
+    }, [images]);
+
+    // Determine current image source
+    const currentSrc = (images && images.length > 0) ? images[currentImageIndex] : image;
 
     // Parallax effect
     const backgroundY = useTransform(scrollY, [0, 500], [0, 150]);
@@ -47,21 +64,25 @@ const ServiceHero = ({
     };
 
     return (
-        <section className="relative h-[100svh] md:min-h-screen flex flex-col justify-center overflow-hidden bg-secondary">
+        <section className="relative h-[100svh] md:min-h-screen flex flex-col justify-center md:justify-start overflow-hidden bg-secondary">
             {/* Parallax Background */}
             <motion.div
                 className="absolute inset-0 z-0"
                 style={{ y: backgroundY }}
             >
-                {/* Background Image */}
-                <motion.img
-                    src={image}
-                    alt={title}
-                    className="absolute inset-0 w-full h-full object-cover"
-                    initial={{ opacity: 0, scale: 1.1 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ duration: 0.8, ease: "easeOut" }}
-                />
+                {/* Background Image(s) */}
+                <AnimatePresence mode="popLayout">
+                    <motion.img
+                        key={currentSrc}
+                        src={currentSrc}
+                        alt={title}
+                        className="absolute inset-0 w-full h-full object-cover"
+                        initial={{ opacity: 0, scale: 1.1 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        exit={{ opacity: 0 }}
+                        transition={{ duration: 1.5, ease: "easeInOut" }}
+                    />
+                </AnimatePresence>
 
                 {/* Gradient Overlay + Extra Dark Overlay */}
                 <div className={`absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-secondary/90 z-10 transition-opacity duration-300 ${showOverlay ? 'bg-black/30' : ''}`} />
@@ -69,7 +90,7 @@ const ServiceHero = ({
 
             {/* Main Content */}
             <motion.div
-                className="relative z-20 text-center px-6 max-w-6xl mx-auto flex-grow flex flex-col justify-center pb-24 md:pb-0"
+                className={`relative z-20 text-center px-6 ${maxWidth} mx-auto flex-grow flex flex-col justify-center md:justify-start md:pt-48 pb-24 md:pb-0`}
                 style={{ y: contentY, opacity }}
                 variants={heroStagger}
                 initial="hidden"
@@ -96,7 +117,7 @@ const ServiceHero = ({
                 </motion.h1>
 
                 {/* Description */}
-                <motion.div variants={heroText} className="mb-6 md:mb-8">
+                <motion.div variants={heroText} className="mb-6 md:mb-8 min-h-[5.5rem] flex items-end justify-center">
                     {mobileDescription ? (
                         <>
                             <p className="md:hidden text-lg text-gray-100 max-w-xl mx-auto leading-relaxed drop-shadow-md font-medium">

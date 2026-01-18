@@ -1,9 +1,12 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Shield, Truck, Clock } from 'lucide-react';
+import { Shield, Truck, Clock, RefreshCcw, Package } from 'lucide-react';
 import PageTransition from '../components/PageTransition';
 import ProductGrid from '../components/shop/ProductGrid';
 import SEO from '../components/SEO';
+import FAQSection from '../components/FAQSection';
+import CallToAction from '../components/CallToAction';
+import TrustSection from '../components/TrustSection';
 
 const Winkel = () => {
   const uspItems = [
@@ -19,6 +22,36 @@ const Winkel = () => {
       icon: Shield,
       text: <span><strong>Veilig</strong> iDEAL & meer</span>
     }
+  ];
+
+  const shopQuestions = [
+    {
+      icon: Truck,
+      question: "Wat zijn de verzendkosten?",
+      answer: "Verzending is gratis voor bestellingen vanaf €50. Voor bestellingen daaronder rekenen wij een klein bedrag aan verzendkosten. Dit wordt duidelijk weergegeven in uw winkelwagen."
+    },
+    {
+      icon: Clock,
+      question: "Wat is de levertijd?",
+      answer: "Wij streven ernaar om bestellingen binnen 1-3 werkdagen bij u te bezorgen. U ontvangt een track & trace code zodra uw pakket is verzonden."
+    },
+    {
+      icon: RefreshCcw,
+      question: "Kan ik producten retourneren?",
+      answer: "Ja, u kunt ongeopende producten binnen 14 dagen na ontvangst retourneren. Neem contact op met onze klantenservice voor de retourinstructies."
+    },
+    {
+      icon: Shield,
+      question: "Zijn deze producten veilig voor mijn tuin?",
+      answer: "Ja, al onze producten zijn zorgvuldig geselecteerd en worden door ons ook professioneel gebruikt. Lees altijd de gebruiksaanwijzing voor het beste en veiligste resultaat."
+    }
+  ];
+
+  const trustItems = [
+    { value: "500+", label: "Tevreden klanten" },
+    { value: "5★", label: "Gemiddelde score" },
+    { value: "100%", label: "Professioneel" },
+    { value: "NL", label: "Made in NL" },
   ];
 
   return (
@@ -88,35 +121,26 @@ const Winkel = () => {
       </section>
 
       {/* Trust Section */}
-      <section className="py-16 bg-gray-50">
-        <div className="container mx-auto px-6">
-          <div className="max-w-3xl mx-auto text-center">
-            <h2 className="text-2xl font-bold mb-4">Waarom Bereschoon Producten?</h2>
-            <p className="text-gray-600 mb-8">
-              Al onze producten worden door ons eigen team gebruikt bij professionele reinigingswerkzaamheden.
-              We verkopen alleen producten waar we 100% achter staan.
-            </p>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
-              <div>
-                <p className="text-3xl font-bold text-primary">500+</p>
-                <p className="text-sm text-gray-500">Tevreden klanten</p>
-              </div>
-              <div>
-                <p className="text-3xl font-bold text-primary">5★</p>
-                <p className="text-sm text-gray-500">Gemiddelde score</p>
-              </div>
-              <div>
-                <p className="text-3xl font-bold text-primary">100%</p>
-                <p className="text-sm text-gray-500">Professioneel</p>
-              </div>
-              <div>
-                <p className="text-3xl font-bold text-primary">NL</p>
-                <p className="text-sm text-gray-500">Made in NL</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
+      <TrustSection
+        title="Waarom Bereschoon Producten?"
+        description="Al onze producten worden door ons eigen team gebruikt bij professionele reinigingswerkzaamheden. We verkopen alleen producten waar we 100% achter staan."
+        items={trustItems}
+        className="bg-gray-50"
+      />
+
+      <FAQSection
+        title="Vragen over de webshop"
+        subtitle="Klantenservice"
+        questions={shopQuestions}
+      />
+
+      <CallToAction
+        title="Toch liever"
+        highlight="uitbesteden?"
+        description="Wil je toch dat Bereschoon bij jouw je oprit komt schoonmaken? Onze specialisten staan voor u klaar."
+        buttonText="Offerte Aanvragen"
+        href="/contact"
+      />
     </PageTransition>
   );
 };

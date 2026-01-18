@@ -10,6 +10,7 @@ import ProcessSteps from '../components/ProcessSteps';
 import CallToAction from '../components/CallToAction';
 import { fetchProjects } from '../lib/projects';
 import SEO from '../components/SEO';
+import { GOOGLE_REVIEW_DATA } from '../data/reviews';
 
 const Projecten = () => {
     const [projects, setProjects] = useState([]);
@@ -66,7 +67,11 @@ const Projecten = () => {
                 title="Gerealiseerde Projecten"
                 subtitle="Onze Trots"
                 description="Een selectie van recente werkzaamheden. Van opritreiniging tot gevelreiniging, wij leveren altijd topkwaliteit."
-                image="/images/image00019.webp"
+                images={[
+                    '/images/hero/projecten/hero-projecten1.webp',
+                    '/images/hero/projecten/hero-projecten2.webp',
+                    '/images/hero/projecten/hero-projecten3.webp'
+                ]}
                 features={[
                     '500+ Projecten',
                     'Jarenlange Ervaring',
@@ -75,10 +80,8 @@ const Projecten = () => {
                 ctaText="Direct Offerte Aanvragen"
                 ctaHref="/contact"
                 reviewData={{
-                    score: "5.0",
-                    count: 126, // Using a generic high count or we could import the real one if we had a constant
-                    quote: "Afspraken nagekomen en top resultaat! – Familie de Vries",
-                    link: "https://www.google.com/search?q=Bereschoon+Helmond+reviews"
+                    ...GOOGLE_REVIEW_DATA,
+                    quote: "Afspraken nagekomen en top resultaat! – Familie de Vries"
                 }}
                 companyLogos={[
                     "/images/company-logos/logo1.webp",

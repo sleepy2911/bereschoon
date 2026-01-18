@@ -1,12 +1,14 @@
 import React from 'react';
 import { ArrowRight, Clock, MessageSquare } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { Link } from 'react-router-dom';
 
 const CallToAction = ({
     title = "Klaar om uw oprit",
     highlight = "professioneel te laten reinigen?",
     description = "Plan direct een inspectie in en ontvang binnen 24 uur een voorstel op maat. Wij zorgen dat alles weer straalt.",
-    buttonText = "Offerte Aanvragen"
+    buttonText = "Offerte Aanvragen",
+    href = "#keuzehulp"
 }) => {
     return (
         <section className="py-24 bg-white relative overflow-hidden border-t border-gray-100">
@@ -57,13 +59,25 @@ const CallToAction = ({
                         transition={{ delay: 0.3 }}
                         className="flex flex-col items-center gap-6"
                     >
-                        <a
-                            href="#keuzehulp"
-                            className="bg-primary hover:bg-primary/90 text-white font-bold text-lg px-10 py-4 rounded-xl shadow-lg shadow-primary/20 transition-all hover:scale-105 flex items-center gap-3 w-full sm:w-auto justify-center"
-                        >
-                            <span>{buttonText}</span>
-                            <ArrowRight size={20} />
-                        </a>
+                        {/* Logic to determine if we should use a React Router Link or a standard anchor tag */
+                            /* If it starts with / (but not // which is protocol relative), it's internal. Anchors (#) stay as anchors. */
+                            (href.startsWith('/') && !href.startsWith('//')) ? (
+                                <Link
+                                    to={href}
+                                    className="bg-primary hover:bg-primary/90 text-white font-bold text-lg px-10 py-4 rounded-xl shadow-lg shadow-primary/20 transition-all hover:scale-105 flex items-center gap-3 w-full sm:w-auto justify-center"
+                                >
+                                    <span>{buttonText}</span>
+                                    <ArrowRight size={20} />
+                                </Link>
+                            ) : (
+                                <a
+                                    href={href}
+                                    className="bg-primary hover:bg-primary/90 text-white font-bold text-lg px-10 py-4 rounded-xl shadow-lg shadow-primary/20 transition-all hover:scale-105 flex items-center gap-3 w-full sm:w-auto justify-center"
+                                >
+                                    <span>{buttonText}</span>
+                                    <ArrowRight size={20} />
+                                </a>
+                            )}
 
                         <div className="flex items-center text-gray-500 text-sm font-medium gap-2">
                             <Clock size={16} className="text-primary" />

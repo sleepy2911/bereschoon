@@ -4,21 +4,33 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   ShoppingBag, Check, Minus, Plus,
   ChevronLeft, ChevronRight, Play, Truck, Shield, Clock,
-  Loader2, ArrowLeft, Star
+  Loader2, ArrowLeft, Star, FileText, AlertTriangle, Droplets, ShieldCheck, User, MessageSquare
 } from 'lucide-react';
 import PageTransition from '../../components/PageTransition';
 import { useCartStore } from '../../stores/cartStore';
+import { useAuth } from '../../context/AuthContext';
+import { supabase } from '../../lib/supabase';
 import SEO from '../../components/SEO';
 import { generateProductSchema } from '../../utils/structuredData';
+import { toast } from 'react-hot-toast';
 
 const ProductDetail = () => {
   const { slug } = useParams();
+  const { user } = useAuth();
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [quantity, setQuantity] = useState(1);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [showVideo, setShowVideo] = useState(false);
+  const [activeTab, setActiveTab] = useState('description');
+
+  // Review state
+  const [showReviewForm, setShowReviewForm] = useState(false);
+  const [reviewRating, setReviewRating] = useState(5);
+  const [reviewTitle, setReviewTitle] = useState('');
+  const [reviewContent, setReviewContent] = useState('');
+  const [submittingReview, setSubmittingReview] = useState(false);
 
   const addItem = useCartStore((state) => state.addItem);
 
@@ -69,12 +81,60 @@ const ProductDetail = () => {
   const handleQuickAdd = () => {
     if (product) {
       addItem(product, 1);
+      toast.success('Toegevoegd aan winkelwagen');
+    }
+  };
+
+  const handleSubmitReview = async (e) => {
+    e.preventDefault();
+    if (!user) return;
+
+    setSubmittingReview(true);
+    try {
+      const newReview = {
+        id: crypto.randomUUID(),
+        user_id: user.id,
+        user_name: user.user_metadata?.full_name || 'Anoniem',
+        rating: reviewRating,
+        title: reviewTitle,
+        content: reviewContent,
+        date: new Date().toISOString(),
+        replies: []
+      };
+
+      const currentReviews = product.reviews || [];
+      const updatedReviews = [newReview, ...currentReviews];
+
+      const { error: updateError } = await supabase
+        .from('products')
+        .update({ reviews: updatedReviews })
+        .eq('id', product.id);
+
+      if (updateError) throw updateError;
+
+      setProduct({ ...product, reviews: updatedReviews });
+      setShowReviewForm(false);
+      setReviewRating(5);
+      setReviewTitle('');
+      setReviewContent('');
+      toast.success('Review geplaatst!');
+    } catch (err) {
+      console.error('Error submitting review:', err);
+      toast.error('Er ging iets mis bij het plaatsen van de review');
+    } finally {
+      setSubmittingReview(false);
     }
   };
 
   const discountPercentage = product?.compare_price
     ? Math.round(((product.compare_price - product.price) / product.compare_price) * 100)
     : null;
+
+  // Calculate average rating
+  const reviews = product?.reviews || [];
+  const averageRating = reviews.length > 0
+    ? reviews.reduce((acc, review) => acc + (review.rating || 0), 0) / reviews.length
+    : 0;
 
   if (loading) {
     return (
@@ -278,9 +338,18 @@ const ProductDetail = () => {
               {/* Mobile: Reviews */}
               <div className="flex md:hidden items-center gap-2 mb-4">
                 <div className="flex text-yellow-400">
-                  {[1, 2, 3, 4, 5].map(i => <Star key={i} size={16} fill="currentColor" strokeWidth={0} />)}
+                  {[1, 2, 3, 4, 5].map(i => (
+                    <Star
+                      key={i}
+                      size={16}
+                      fill={i <= Math.round(averageRating) ? "currentColor" : "none"}
+                      className={i <= Math.round(averageRating) ? "text-yellow-400" : "text-gray-300"}
+                    />
+                  ))}
                 </div>
-                <span className="text-xs font-medium text-gray-500 underline">50+ Google reviews</span>
+                <span className="text-xs font-medium text-gray-500 underline">
+                  {reviews.length} reviews
+                </span>
               </div>
 
               {/* Desktop: Price */}
@@ -389,17 +458,313 @@ const ProductDetail = () => {
             </div>
           </div>
 
-          {/* Full Description */}
-          {product.description && (
-            <div className="mt-16">
-              <h2 className="text-2xl font-bold mb-6">Productbeschrijving</h2>
-              <div className="bg-white rounded-2xl p-8 shadow-sm">
-                <div className="prose prose-lg max-w-none whitespace-pre-line">
-                  {product.description}
+          {/* Product Information Tabs */}
+          <div className="mt-16 bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+            <div className="flex flex-wrap border-b border-gray-100">
+              <button
+                onClick={() => setActiveTab('description')}
+                className={`px-6 py-4 text-sm font-bold uppercase tracking-wide transition-colors relative ${activeTab === 'description' ? 'text-primary' : 'text-gray-500 hover:text-gray-700'
+                  }`}
+              >
+                Omschrijving
+                {activeTab === 'description' && (
+                  <motion.div layoutId="activeTab" className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary" />
+                )}
+              </button>
+
+              <button
+                onClick={() => setActiveTab('usage')}
+                className={`px-6 py-4 text-sm font-bold uppercase tracking-wide transition-colors relative ${activeTab === 'usage' ? 'text-primary' : 'text-gray-500 hover:text-gray-700'
+                  }`}
+              >
+                Gebruik
+                {activeTab === 'usage' && (
+                  <motion.div layoutId="activeTab" className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary" />
+                )}
+              </button>
+
+              <button
+                onClick={() => setActiveTab('dilution')}
+                className={`px-6 py-4 text-sm font-bold uppercase tracking-wide transition-colors relative ${activeTab === 'dilution' ? 'text-primary' : 'text-gray-500 hover:text-gray-700'
+                  }`}
+              >
+                Verdunningen
+                {activeTab === 'dilution' && (
+                  <motion.div layoutId="activeTab" className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary" />
+                )}
+              </button>
+
+              <button
+                onClick={() => setActiveTab('safety')}
+                className={`px-6 py-4 text-sm font-bold uppercase tracking-wide transition-colors relative ${activeTab === 'safety' ? 'text-primary' : 'text-gray-500 hover:text-gray-700'
+                  }`}
+              >
+                Veiligheid
+                {activeTab === 'safety' && (
+                  <motion.div layoutId="activeTab" className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary" />
+                )}
+              </button>
+            </div>
+
+            <div className="p-8 min-h-[300px]">
+              <AnimatePresence mode="wait">
+                {activeTab === 'description' && (
+                  <motion.div
+                    key="description"
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    className="prose prose-lg max-w-none text-gray-600"
+                  >
+                    <div className="whitespace-pre-line">{product.description || 'Geen beschrijving beschikbaar.'}</div>
+                  </motion.div>
+                )}
+
+                {activeTab === 'usage' && (
+                  <motion.div
+                    key="usage"
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    className="prose prose-lg max-w-none text-gray-600"
+                  >
+                    <div className="flex items-start gap-4 mb-6">
+                      <div className="p-3 bg-blue-50 rounded-lg text-blue-600">
+                        <FileText className="w-6 h-6" />
+                      </div>
+                      <div>
+                        <h3 className="text-xl font-bold text-gray-900 mb-2">Gebruiksaanwijzing</h3>
+                        <div className="whitespace-pre-line">{product.usage_instructions || 'Nog geen gebruiksaanwijzing beschikbaar.'}</div>
+                      </div>
+                    </div>
+                  </motion.div>
+                )}
+
+                {activeTab === 'dilution' && (
+                  <motion.div
+                    key="dilution"
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    className="prose prose-lg max-w-none text-gray-600"
+                  >
+                    <div className="flex items-start gap-4 mb-6">
+                      <div className="p-3 bg-cyan-50 rounded-lg text-cyan-600">
+                        <Droplets className="w-6 h-6" />
+                      </div>
+                      <div>
+                        <h3 className="text-xl font-bold text-gray-900 mb-2">Verdunningen</h3>
+                        <div className="whitespace-pre-line">{product.dilution_instructions || 'Nog geen verdunningsinformatie beschikbaar.'}</div>
+                      </div>
+                    </div>
+                  </motion.div>
+                )}
+
+                {activeTab === 'safety' && (
+                  <motion.div
+                    key="safety"
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    className="space-y-8"
+                  >
+                    <div className="flex items-start gap-4">
+                      <div className="p-3 bg-yellow-50 rounded-lg text-yellow-600">
+                        <AlertTriangle className="w-6 h-6" />
+                      </div>
+                      <div>
+                        <h3 className="text-xl font-bold text-gray-900 mb-2">Belangrijke Informatie</h3>
+                        <div className="whitespace-pre-line text-gray-600">
+                          {product.warnings || 'Geen belangrijke waarschuwingen.'}
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="flex items-start gap-4">
+                      <div className="p-3 bg-red-50 rounded-lg text-red-600">
+                        <ShieldCheck className="w-6 h-6" />
+                      </div>
+                      <div>
+                        <h3 className="text-xl font-bold text-gray-900 mb-2">Veiligheidsblad & Ingrediënten</h3>
+                        <div className="whitespace-pre-line text-gray-600">
+                          {product.safety_info || 'Geen veiligheidsinformatie beschikbaar.'}
+                        </div>
+                      </div>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+          </div>
+
+          {/* Reviews Section */}
+          <div className="mt-16 mb-12">
+            <div className="flex items-center justify-between mb-8">
+              <div>
+                <h2 className="text-2xl font-bold text-gray-900">Reviews</h2>
+                <div className="flex items-center gap-2 mt-2">
+                  <div className="flex text-yellow-400">
+                    {[1, 2, 3, 4, 5].map(i => (
+                      <Star
+                        key={i}
+                        size={20}
+                        fill={i <= Math.round(averageRating) ? "currentColor" : "none"}
+                        className={i <= Math.round(averageRating) ? "text-yellow-400" : "text-gray-300"}
+                      />
+                    ))}
+                  </div>
+                  <span className="text-gray-500 font-medium">
+                    {averageRating.toFixed(1)} ({reviews.length} reviews)
+                  </span>
                 </div>
               </div>
+
+              {user ? (
+                <button
+                  onClick={() => setShowReviewForm(!showReviewForm)}
+                  className="bg-primary text-white px-6 py-2 rounded-xl font-bold hover:bg-primary/90 transition-colors"
+                >
+                  {showReviewForm ? 'Annuleren' : 'Schrijf een review'}
+                </button>
+              ) : (
+                <Link
+                  to="/winkel/account"
+                  className="border-2 border-primary text-primary px-6 py-2 rounded-xl font-bold hover:bg-blue-50 transition-colors"
+                >
+                  Login om te reviewen
+                </Link>
+              )}
             </div>
-          )}
+
+            {/* Review Form */}
+            <AnimatePresence>
+              {showReviewForm && (
+                <motion.form
+                  initial={{ height: 0, opacity: 0 }}
+                  animate={{ height: 'auto', opacity: 1 }}
+                  exit={{ height: 0, opacity: 0 }}
+                  onSubmit={handleSubmitReview}
+                  className="bg-gray-50 p-6 rounded-2xl mb-8 overflow-hidden"
+                >
+                  <h3 className="text-lg font-bold mb-4">Deel jouw ervaring</h3>
+
+                  <div className="mb-4">
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Beoordeling</label>
+                    <div className="flex gap-2">
+                      {[1, 2, 3, 4, 5].map(i => (
+                        <button
+                          key={i}
+                          type="button"
+                          onClick={() => setReviewRating(i)}
+                          className="focus:outline-none"
+                        >
+                          <Star
+                            size={28}
+                            fill={i <= reviewRating ? "currentColor" : "none"}
+                            className={`transition-colors ${i <= reviewRating ? "text-yellow-400" : "text-gray-300"}`}
+                          />
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="mb-4">
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Titel</label>
+                    <input
+                      type="text"
+                      required
+                      value={reviewTitle}
+                      onChange={(e) => setReviewTitle(e.target.value)}
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent outline-none"
+                      placeholder="Samenvatting van je ervaring"
+                    />
+                  </div>
+
+                  <div className="mb-4">
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Review</label>
+                    <textarea
+                      required
+                      rows={4}
+                      value={reviewContent}
+                      onChange={(e) => setReviewContent(e.target.value)}
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent outline-none resize-none"
+                      placeholder="Vertel ons wat je ervan vindt..."
+                    />
+                  </div>
+
+                  <button
+                    type="submit"
+                    disabled={submittingReview}
+                    className="bg-primary text-white px-8 py-3 rounded-xl font-bold hover:bg-primary/90 transition-colors disabled:opacity-50"
+                  >
+                    {submittingReview ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Plaats Review'}
+                  </button>
+                </motion.form>
+              )}
+            </AnimatePresence>
+
+            {/* Reviews List */}
+            <div className="space-y-6">
+              {reviews.length === 0 ? (
+                <div className="text-center py-12 bg-gray-50 rounded-2xl">
+                  <MessageSquare className="w-12 h-12 text-gray-300 mx-auto mb-4" />
+                  <p className="text-gray-500 font-medium">Nog geen reviews. Wees de eerste!</p>
+                </div>
+              ) : (
+                reviews.map((review) => (
+                  <div key={review.id} className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
+                    <div className="flex items-start justify-between mb-4">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center">
+                          <User className="w-6 h-6 text-gray-400" />
+                        </div>
+                        <div>
+                          <p className="font-bold text-gray-900">{review.user_name}</p>
+                          <p className="text-xs text-gray-500">
+                            {new Date(review.date).toLocaleDateString('nl-NL', {
+                              year: 'numeric',
+                              month: 'long',
+                              day: 'numeric'
+                            })}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex text-yellow-400">
+                        {[1, 2, 3, 4, 5].map(i => (
+                          <Star
+                            key={i}
+                            size={16}
+                            fill={i <= review.rating ? "currentColor" : "none"}
+                            className={i <= review.rating ? "text-yellow-400" : "text-gray-200"}
+                          />
+                        ))}
+                      </div>
+                    </div>
+
+                    <h4 className="font-bold text-gray-900 mb-2">{review.title}</h4>
+                    <p className="text-gray-600 leading-relaxed mb-4">{review.content}</p>
+
+                    {/* Replies */}
+                    {review.replies && review.replies.length > 0 && (
+                      <div className="ml-8 mt-4 pl-4 border-l-2 border-gray-100 space-y-4">
+                        {review.replies.map((reply, index) => (
+                          <div key={index} className="bg-gray-50 p-4 rounded-xl">
+                            <div className="flex items-center gap-2 mb-2">
+                              <span className="font-bold text-sm text-primary">Bereschoon</span>
+                              <span className="text-xs text-gray-400">
+                                {new Date(reply.date).toLocaleDateString('nl-NL')}
+                              </span>
+                            </div>
+                            <p className="text-sm text-gray-600">{reply.content}</p>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
         </div>
       </div>
     </PageTransition>

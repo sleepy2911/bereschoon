@@ -8,6 +8,7 @@ import ProcessSteps from '../components/ProcessSteps';
 import CallToAction from '../components/CallToAction';
 import SEO from '../components/SEO';
 import { generateFAQSchema, generateServiceSchema, SERVICE_FAQ_DATA } from '../utils/structuredData';
+import { GOOGLE_REVIEW_DATA } from '../data/reviews';
 
 const Onkruidbeheersing = () => {
     // Structured data voor deze pagina
@@ -19,7 +20,7 @@ const Onkruidbeheersing = () => {
         url: '/onkruidbeheersing',
         image: '/images/images_optimized/onkruid tuin voor.webp'
     });
-    
+
     // Combineer alle schemas
     const combinedSchema = [faqSchema, serviceSchema].filter(Boolean);
 
@@ -40,7 +41,11 @@ const Onkruidbeheersing = () => {
                 title="Onkruidbeheersing"
                 subtitle="Professioneel Onderhoud"
                 description="Houd uw tuin, terras en oprit onkruidvrij met onze professionele onkruidbeheersingsplannen. Regelmatig onderhoud voor een verzorgde uitstraling het hele jaar door."
-                image="/images/images_optimized/onkruid tuin voor.webp"
+                images={[
+                    '/images/hero/onkruid/hero-onkruid1.webp',
+                    '/images/hero/onkruid/hero-onkruid2.webp',
+                    '/images/hero/onkruid/hero-onkruid3.webp'
+                ]}
                 features={[
                     'Flexibele plannen',
                     'Milieuvriendelijk',
@@ -48,10 +53,8 @@ const Onkruidbeheersing = () => {
                 ]}
                 ctaText="Direct Offerte Aanvragen"
                 reviewData={{
-                    score: "5.0",
-                    count: 38,
-                    quote: "Geen omkijken meer naar onkruid, heerlijk! – Familie de Vries",
-                    link: "https://www.google.com/search?q=Bereschoon+Helmond+reviews"
+                    ...GOOGLE_REVIEW_DATA,
+                    quote: "Geen omkijken meer naar onkruid, heerlijk! – Familie de Vries"
                 }}
                 companyLogos={[
                     "/images/company-logos/logo1.webp",

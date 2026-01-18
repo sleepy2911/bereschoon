@@ -1,19 +1,19 @@
 import React, { useState, useEffect } from 'react';
-import { motion, useScroll, useTransform } from 'framer-motion';
+import { motion, useScroll, useTransform, AnimatePresence } from 'framer-motion'; // Added AnimatePresence
 import { ChevronDown, ArrowRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import WaveDivider from './effects/WaveDivider';
 import SprayCleanText from './effects/SprayCleanText';
 import { heroStagger, heroText } from '../utils/animations';
 
-// Hero background: één krachtige actiefoto uit de nieuwe serie
-const heroPairs = [
-    { before: '/images/image00019.webp', after: '/images/image00019.webp' }
+const heroImages = [
+    '/images/hero/home/hero-home1.webp',
+    '/images/hero/home/hero-home2.webp',
+    '/images/hero/home/hero-home3.webp'
 ];
 
 const Hero = () => {
-    const [currentPairIndex, setCurrentPairIndex] = useState(0);
-    const [showAfter, setShowAfter] = useState(false);
+    const [currentImageIndex, setCurrentImageIndex] = useState(0);
     const { scrollY } = useScroll();
 
     // Parallax effect
@@ -21,33 +21,16 @@ const Hero = () => {
     const contentY = useTransform(scrollY, [0, 500], [0, 50]);
     const opacity = useTransform(scrollY, [0, 400], [1, 0]);
 
-    // Auto-fade tussen voor en na, dan volgende paar
     useEffect(() => {
-        const cycleDuration = 10000; // 10 seconden per paar
-        const transitionDelay = 4000; // Na 4 sec, toon "na"
-
-        const interval = setInterval(() => {
-            setShowAfter(false);
-            setCurrentPairIndex((prev) => (prev + 1) % heroPairs.length);
-        }, cycleDuration);
-
-        const toggleTimer = setTimeout(() => {
-            const toggleInterval = setInterval(() => {
-                setShowAfter(true);
-            }, cycleDuration);
-            return () => clearInterval(toggleInterval);
-        }, transitionDelay);
-
-        const initialTimeout = setTimeout(() => setShowAfter(true), transitionDelay);
-
-        return () => {
-            clearInterval(interval);
-            clearTimeout(toggleTimer);
-            clearTimeout(initialTimeout);
-        };
+        if (heroImages.length > 1) {
+            const interval = setInterval(() => {
+                setCurrentImageIndex((prev) => (prev + 1) % heroImages.length);
+            }, 10000);
+            return () => clearInterval(interval);
+        }
     }, []);
 
-    const currentPair = heroPairs[currentPairIndex];
+    const currentSrc = heroImages[currentImageIndex];
 
     return (
         <section className="relative h-screen flex items-center justify-center overflow-hidden bg-secondary">
@@ -56,15 +39,19 @@ const Hero = () => {
                 className="absolute inset-0 z-0"
                 style={{ y: backgroundY }}
             >
-                {/* Background Image */}
-                <motion.img
-                    src={currentPair.before}
-                    alt="Voor"
-                    className="absolute inset-0 w-full h-full object-cover object-[center_75%]"
-                    initial={{ opacity: 1, scale: 1 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ duration: 0.8, ease: "easeOut" }}
-                />
+                {/* Background Image(s) */}
+                <AnimatePresence mode="popLayout">
+                    <motion.img
+                        key={currentSrc}
+                        src={currentSrc}
+                        alt="Hero Background"
+                        className="absolute inset-0 w-full h-full object-cover object-[center_75%]" // Kept original object position
+                        initial={{ opacity: 0, scale: 1.1 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        exit={{ opacity: 0 }}
+                        transition={{ duration: 1.5, ease: "easeInOut" }}
+                    />
+                </AnimatePresence>
 
                 {/* Gradient Overlay */}
                 <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/30 to-secondary/90 z-10" />
@@ -136,21 +123,22 @@ const Hero = () => {
             </motion.div>
 
             {/* Image Dots */}
-            <div className="absolute bottom-36 left-1/2 -translate-x-1/2 z-20 flex gap-2">
-                {heroPairs.map((_, index) => (
-                    <button
-                        key={index}
-                        onClick={() => {
-                            setCurrentPairIndex(index);
-                            setShowAfter(false);
-                        }}
-                        className={`h-1.5 rounded-full transition-all duration-300 ${index === currentPairIndex
-                            ? 'bg-primary w-6'
-                            : 'bg-white/40 w-1.5 hover:bg-white/70'
-                            }`}
-                    />
-                ))}
-            </div>
+            {heroImages.length > 1 && (
+                <div className="absolute bottom-36 left-1/2 -translate-x-1/2 z-20 flex gap-2">
+                    {heroImages.map((_, index) => (
+                        <button
+                            key={index}
+                            onClick={() => {
+                                setCurrentImageIndex(index);
+                            }}
+                            className={`h-1.5 rounded-full transition-all duration-300 ${index === currentImageIndex
+                                ? 'bg-primary w-6'
+                                : 'bg-white/40 w-1.5 hover:bg-white/70'
+                                }`}
+                        />
+                    ))}
+                </div>
+            )}
 
             {/* Scroll Indicator */}
             <motion.div

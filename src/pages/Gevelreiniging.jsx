@@ -8,6 +8,7 @@ import ProcessSteps from '../components/ProcessSteps';
 import CallToAction from '../components/CallToAction';
 import SEO from '../components/SEO';
 import { generateFAQSchema, generateServiceSchema, SERVICE_FAQ_DATA } from '../utils/structuredData';
+import { GOOGLE_REVIEW_DATA } from '../data/reviews';
 
 const Gevelreiniging = () => {
     // Structured data voor deze pagina
@@ -19,7 +20,7 @@ const Gevelreiniging = () => {
         url: '/gevelreiniging',
         image: '/images/images_optimized/IMG_2566.webp'
     });
-    
+
     // Combineer alle schemas
     const combinedSchema = [faqSchema, serviceSchema].filter(Boolean);
 
@@ -40,7 +41,11 @@ const Gevelreiniging = () => {
                 title="Gevelreiniging"
                 subtitle="Professionele Reiniging"
                 description="Verwijder groene aanslag, algen en vuil van uw gevel. Met onze milde en effectieve reinigingstechnieken herstellen wij de uitstraling van uw woning zonder schade."
-                image="/images/images_optimized/IMG_2566.webp"
+                images={[
+                    '/images/hero/gevel/hero-gevel1.webp',
+                    '/images/hero/gevel/hero-gevel2.webp',
+                    '/images/hero/gevel/hero-gevel3.webp'
+                ]}
                 features={[
                     'Hogedruk reiniging',
                     'Stoomreiniging',
@@ -48,10 +53,8 @@ const Gevelreiniging = () => {
                 ]}
                 ctaText="Direct Offerte Aanvragen"
                 reviewData={{
-                    score: "5.0",
-                    count: 42,
-                    quote: "Gevel ziet er weer als nieuw uit, heel blij mee! – Peter uit Helmond",
-                    link: "https://www.google.com/search?q=Bereschoon+Helmond+reviews"
+                    ...GOOGLE_REVIEW_DATA,
+                    quote: "Gevel ziet er weer als nieuw uit, heel blij mee! – Peter uit Helmond"
                 }}
                 companyLogos={[
                     "/images/company-logos/logo1.webp",

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Mail, Phone, MapPin, Linkedin, Instagram, MessageCircle, Loader2, Check } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { GOOGLE_REVIEW_DATA } from '../data/reviews';
 
 const Footer = () => {
     const [formData, setFormData] = useState({ name: '', email: '', phone: '' });
@@ -68,21 +69,21 @@ const Footer = () => {
                     <div className="space-y-6">
                         <img src="/images/logo.png" alt="Bereschoon" className="h-16 w-auto" />
                         <p className="text-stone-300 text-sm leading-relaxed max-w-md">
-                            Professionele externe reiniging voor een stralend resultaat. Wij tillen uw vastgoed naar een hoger niveau.
+                            Ga voor een Bereschoon resultaat. Wij reinigen uw oprit en gevel grondig met milieuvriendelijke producten. Een stralende buitenruimte, op een duurzame manier.
                         </p>
 
                         {/* Trust Badges */}
                         <div className="flex flex-col gap-4">
                             {/* Review Placeholder */}
                             <a
-                                href="https://www.google.com/search?q=Bereschoon+Helmond+reviews"
+                                href={GOOGLE_REVIEW_DATA.link}
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className="flex items-center gap-3 bg-white/5 p-3 rounded-lg border border-white/10 max-w-max hover:bg-white/10 transition-colors cursor-pointer"
                             >
                                 <div className="text-yellow-400 flex text-sm">★★★★★</div>
                                 <div className="text-xs text-stone-300">
-                                    <span className="font-bold text-white">5.0/5</span> op Google
+                                    <span className="font-bold text-white">{GOOGLE_REVIEW_DATA.score}/5</span> op Google
                                 </div>
                             </a>
 

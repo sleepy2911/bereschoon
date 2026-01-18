@@ -8,6 +8,7 @@ import ProcessSteps from '../components/ProcessSteps';
 import CallToAction from '../components/CallToAction';
 import SEO from '../components/SEO';
 import { generateFAQSchema, generateServiceSchema, SERVICE_FAQ_DATA } from '../utils/structuredData';
+import { GOOGLE_REVIEW_DATA } from '../data/reviews';
 
 const OpritTerrasTerrein = () => {
     // Structured data voor deze pagina
@@ -37,11 +38,14 @@ const OpritTerrasTerrein = () => {
             />
             {/* Hero Section */}
             <ServiceHero
-                title="Oprit, Terras & Terreinreiniging"
+                title="Oprit & Terreinreiniging"
                 subtitle="Professionele Reiniging"
                 description="Verwijder hardnekkig vuil, groene aanslag en onkruid van uw oprit, terras of terrein. Met onze geavanceerde technieken herstellen wij de oorspronkelijke uitstraling."
-                mobileDescription="Professionele reiniging van uw oprit & terras. Direct resultaat."
-                image="/images/images_optimized/IMG_3251.webp"
+                images={[
+                    '/images/hero/oprit/hero-oprit1.webp',
+                    '/images/hero/oprit/hero-oprit2.webp',
+                    '/images/hero/oprit/hero-oprit3.webp'
+                ]}
                 features={[
                     'Hogedruk reiniging',
                     'Voegen herstellen',
@@ -49,10 +53,8 @@ const OpritTerrasTerrein = () => {
                 ]}
                 ctaText="Direct Offerte Aanvragen"
                 reviewData={{
-                    score: "5.0",
-                    count: 53,
-                    quote: "Super strak resultaat, terras ziet er als nieuw uit! – Jan uit Breda",
-                    link: "https://www.google.com/search?q=Bereschoon+Helmond+reviews"
+                    ...GOOGLE_REVIEW_DATA,
+                    quote: "Super strak resultaat, terras ziet er als nieuw uit! – Jan uit Breda"
                 }}
                 companyLogos={[
                     "/images/company-logos/logo1.webp",
@@ -66,6 +68,7 @@ const OpritTerrasTerrein = () => {
                     "/images/company-logos/logo9.webp",
                     "/images/company-logos/logo10.webp"
                 ]}
+                maxWidth="max-w-7xl lg:max-w-[90rem]"
             />
 
             {/* Form Section */}
