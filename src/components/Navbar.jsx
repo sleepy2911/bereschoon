@@ -26,6 +26,8 @@ const Navbar = () => {
         location.pathname === '/privacy' ||
         location.pathname === '/algemene-voorwaarden' ||
         location.pathname === '/verzend-retourbeleid';
+    const isLocationSeoPage =
+        location.pathname.startsWith('/reinigingsdiensten-');
 
     // Pages that should have white text when navbar is transparent (pages with hero sections)
     const hasHeroSection =
@@ -36,7 +38,8 @@ const Navbar = () => {
         isOpritTerrasTerrein ||
         isGevelreiniging ||
         isOnkruidbeheersing ||
-        isLegalPage;
+        isLegalPage ||
+        isLocationSeoPage;
 
     useEffect(() => {
         const handleScroll = () => {

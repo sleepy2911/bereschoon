@@ -23,6 +23,11 @@ import NotFound from './pages/NotFound';
 import AlgemeneVoorwaarden from './pages/AlgemeneVoorwaarden';
 import Privacy from './pages/Privacy';
 import VerzendRetourbeleid from './pages/VerzendRetourbeleid';
+import ReinigingsdienstenHelmond from './pages/locaties/ReinigingsdienstenHelmond';
+import ReinigingsdienstenEindhoven from './pages/locaties/ReinigingsdienstenEindhoven';
+import ReinigingsdienstenMierlo from './pages/locaties/ReinigingsdienstenMierlo';
+import ReinigingsdienstenGemert from './pages/locaties/ReinigingsdienstenGemert';
+import ReinigingsdienstenDenBosch from './pages/locaties/ReinigingsdienstenDenBosch';
 
 // Shop pages
 import ProductDetail from './pages/shop/ProductDetail';
@@ -131,6 +136,13 @@ function App() {
                   <Route path="/algemene-voorwaarden" element={<AlgemeneVoorwaarden />} />
                   <Route path="/privacy" element={<Privacy />} />
                   <Route path="/verzend-retourbeleid" element={<VerzendRetourbeleid />} />
+                  
+                  {/* Location-based SEO pages */}
+                  <Route path="/reinigingsdiensten-helmond" element={<ReinigingsdienstenHelmond />} />
+                  <Route path="/reinigingsdiensten-eindhoven" element={<ReinigingsdienstenEindhoven />} />
+                  <Route path="/reinigingsdiensten-mierlo" element={<ReinigingsdienstenMierlo />} />
+                  <Route path="/reinigingsdiensten-gemert" element={<ReinigingsdienstenGemert />} />
+                  <Route path="/reinigingsdiensten-den-bosch" element={<ReinigingsdienstenDenBosch />} />
 
                   {/* Webshop routes */}
                   <Route path="/winkel" element={<Winkel />} />
