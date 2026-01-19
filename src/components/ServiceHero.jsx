@@ -171,7 +171,7 @@ const ServiceHero = ({
 
             {/* Main Content */}
             <motion.div
-                className={`relative z-20 text-center px-4 md:px-6 ${maxWidth} w-full mx-auto flex-grow flex flex-col items-center justify-center md:justify-start md:pt-48 pb-24 md:pb-0`}
+                className={`relative z-20 text-center px-4 md:px-6 ${maxWidth} md:max-w-full w-full mx-auto flex-grow flex flex-col items-center justify-center md:justify-start md:pt-48 pb-24 md:pb-0`}
                 style={{ y: contentY, opacity }}
                 variants={heroStagger}
                 initial="hidden"
@@ -192,7 +192,7 @@ const ServiceHero = ({
                 {/* Main Title */}
                 <motion.h1
                     variants={heroText}
-                    className="text-5xl md:text-7xl lg:text-8xl font-bold mb-8 tracking-tighter text-white drop-shadow-lg text-center w-full md:whitespace-nowrap"
+                    className="text-5xl md:text-7xl lg:text-8xl font-bold mb-8 tracking-tighter text-white drop-shadow-lg text-center md:whitespace-nowrap mx-auto"
                 >
                     {title}
                 </motion.h1>
