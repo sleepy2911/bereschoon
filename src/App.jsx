@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, useLocation, Outlet } from 'react-router-dom';
 import { HelmetProvider } from 'react-helmet-async';
 import { Toaster } from 'react-hot-toast';
 import { AuthProvider } from './context/AuthContext';
@@ -28,6 +28,7 @@ import ReinigingsdienstenEindhoven from './pages/locaties/ReinigingsdienstenEind
 import ReinigingsdienstenMierlo from './pages/locaties/ReinigingsdienstenMierlo';
 import ReinigingsdienstenGemert from './pages/locaties/ReinigingsdienstenGemert';
 import ReinigingsdienstenDenBosch from './pages/locaties/ReinigingsdienstenDenBosch';
+import AdLanding from './pages/AdLanding';
 
 // Shop pages
 import ProductDetail from './pages/shop/ProductDetail';
@@ -107,6 +108,25 @@ function ScrollToTop() {
   return null;
 }
 
+const MainLayout = () => {
+  return (
+    <>
+      <StructuredData />
+      <AnnouncementBanner />
+      <Navbar />
+
+      <main className="flex-grow">
+        <Outlet />
+      </main>
+
+      <Footer />
+      <CookieConsent />
+      <CartSidebar />
+      <NotificationToast />
+    </>
+  );
+};
+
 function App() {
   const [loading, setLoading] = useState(true);
 
@@ -119,12 +139,12 @@ function App() {
           <div className={`min-h-screen flex flex-col font-sans text-foreground bg-background transition-opacity duration-700 ${loading ? 'opacity-0' : 'opacity-100'}`}>
             <Router>
               <ScrollToTop />
-              <StructuredData />
-              <AnnouncementBanner />
-              <Navbar />
+              <Routes>
+                {/* Standalone Ad Landing Page */}
+                <Route path="/offerte-aanvraag" element={<AdLanding />} />
 
-              <main className="flex-grow">
-                <Routes>
+                {/* Main Application Layout */}
+                <Route element={<MainLayout />}>
                   <Route path="/" element={<Home heroReady={!loading} />} />
                   <Route path="/configurator" element={<Configurator />} />
                   <Route path="/contact" element={<Contact />} />
@@ -136,7 +156,7 @@ function App() {
                   <Route path="/algemene-voorwaarden" element={<AlgemeneVoorwaarden />} />
                   <Route path="/privacy" element={<Privacy />} />
                   <Route path="/verzend-retourbeleid" element={<VerzendRetourbeleid />} />
-                  
+
                   {/* Location-based SEO pages */}
                   <Route path="/reinigingsdiensten-helmond" element={<ReinigingsdienstenHelmond />} />
                   <Route path="/reinigingsdiensten-eindhoven" element={<ReinigingsdienstenEindhoven />} />
@@ -163,14 +183,10 @@ function App() {
 
                   {/* 404 - catch all */}
                   <Route path="*" element={<NotFound />} />
-                </Routes>
-              </main>
+                </Route>
+              </Routes>
 
-              <Footer />
-              <CookieConsent />
-              <CartSidebar />
-              <NotificationToast />
-              <Toaster 
+              <Toaster
                 position="top-right"
                 toastOptions={{
                   duration: 3000,
