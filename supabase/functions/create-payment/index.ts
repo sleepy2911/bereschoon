@@ -128,12 +128,50 @@ serve(async (req) => {
 
     console.log('Validation passed ✓');
 
-    // Calculate totals
-    const subtotal = items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+    // 1. Fetch real prices from DB for security
+    const productIds = items
+      .map(i => i.productId)
+      .filter(id => /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id));
+    
+    let dbProducts: any[] = [];
+    if (productIds.length > 0) {
+      const { data: foundProducts, error: prodError } = await supabase
+        .from('products')
+        .select('id, price, name')
+        .in('id', productIds);
+        
+      if (prodError) {
+        console.error('Error fetching prices:', prodError);
+        throw new Error('Kon productprijzen niet controleren');
+      }
+      dbProducts = foundProducts || [];
+    }
+
+    // 2. Validate items and recalculate totals
+    const validatedItems = items.map(item => {
+      // Check if it looks like a UUID
+      const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(item.productId);
+      
+      if (isUUID) {
+        const dbProduct = dbProducts.find(p => p.id === item.productId);
+        if (!dbProduct) {
+          throw new Error(`Product niet gevonden of niet meer leverbaar: ${item.name}`);
+        }
+        // CRITICAL SECURITY FIX: Use server-side price
+        return { ...item, price: dbProduct.price };
+      }
+      
+      // For non-UUID items (if any exist in your system logic), we might trust the price 
+      // OR throw error if ONLY db-products are allowed. 
+      // Assuming straightforward webshop behavior: strict validation.
+      return item; 
+    });
+
+    const subtotal = validatedItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
     const shippingCost = carrier?.cost || 0;
     const total = subtotal + shippingCost;
 
-    console.log('Order totals calculated:', { subtotal, shippingCost, total });
+    console.log('Order totals calculated (secure):', { subtotal, shippingCost, total });
 
     // Create order in database - only include columns that exist
     console.log('Creating order with:', {

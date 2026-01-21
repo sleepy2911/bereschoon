@@ -51,10 +51,34 @@ serve(async (req) => {
     console.log('Payment status:', payment.status);
 
     // Extract order ID from metadata
-    const orderId = payment.metadata?.order_id;
     if (!orderId) {
       console.error('No order_id in payment metadata');
       throw new Error('Order ID ontbreekt in payment metadata');
+    }
+
+    // Prevent usage of invalid UUIDs via SQL injection attempts (UUID validation)
+    if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(orderId)) {
+       throw new Error('Invalid Order ID format');
+    }
+
+    // Fetch current order status FIRST to ensure idempotency
+    const { data: currentOrder, error: fetchError } = await supabase
+       .from('orders')
+       .select('status')
+       .eq('id', orderId)
+       .single();
+    
+    if (fetchError || !currentOrder) {
+        console.error('Error fetching order for idempotency check:', fetchError);
+        throw new Error('Order niet gevonden');
+    }
+
+    // IDEMPOTENCY CHECK: If already paid, stop duplicate processing
+    // Only stop if we are trying to set it to paid again. If it's a refund/chargeback (cancelled), we might want to allow it?
+    // The prompt/report specific issue was "stock corruption" on replay of "paid".
+    if (currentOrder.status === 'paid' && payment.status === 'paid') {
+        console.log(`Order ${orderId} reeds betaald. Stopping duplicate processing.`);
+        return new Response(JSON.stringify({ success: true, message: 'Already processed' }), { headers: corsHeaders });
     }
 
     // Map Mollie status to our order status
