@@ -139,7 +139,7 @@ const Hero = ({ ready = false }) => {
                     variants={heroText}
                     className="text-lg md:text-xl text-gray-200 mb-10 max-w-2xl mx-auto leading-relaxed"
                 >
-                    Wij herstellen de uitstraling van uw pand met geavanceerde reinigingstechnieken.
+                    Wij zorgen ervoor dat de uitstraling van uw pand of woning weer Bereschoon wordt.
                     <span className="text-primary font-medium"> Professioneel, efficiënt en milieubewust.</span>
                 </motion.p>
 

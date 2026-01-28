@@ -198,12 +198,17 @@ const ProductGrid = () => {
 
                   {/* Badges */}
                   <div className="absolute top-3 left-3 flex flex-col gap-1.5">
-                    {product.featured && (
+                    {product.coming_soon && (
+                      <span className="bg-primary/90 text-white text-xs font-bold px-3 py-1 rounded-full shadow-md">
+                        Binnenkort Beschikbaar
+                      </span>
+                    )}
+                    {product.featured && !product.coming_soon && (
                       <span className="bg-primary text-white text-xs font-bold px-3 py-1 rounded-full shadow-md">
                         Nieuw
                       </span>
                     )}
-                    {discountPercentage && (
+                    {discountPercentage && !product.coming_soon && (
                       <span className="bg-red-500 text-white text-xs font-bold px-3 py-1 rounded-full shadow-md">
                         -{discountPercentage}%
                       </span>
@@ -241,36 +246,46 @@ const ProductGrid = () => {
                   {/* Price & Reviews Grouped */}
                   <div className="flex flex-col items-start gap-1">
                     <div className="flex items-center gap-2">
-                      <div className="flex items-baseline gap-2">
-                        <span className="text-xl font-bold text-gray-900">
-                          €{product.price?.toFixed(2) || '0.00'}
+                      {product.coming_soon ? (
+                        <span className="text-lg font-bold text-primary">
+                          Binnenkort beschikbaar
                         </span>
-                        {product.compare_price && (
-                          <span className="text-sm text-gray-400 line-through">
-                            €{product.compare_price.toFixed(2)}
-                          </span>
-                        )}
-                      </div>
-                      {/* Reviews Inline with Price */}
-                      <div className="flex items-center gap-1">
-                        <div className="flex text-yellow-400">
-                          <Check size={12} className="hidden" />
-                          {[1, 2, 3, 4, 5].map((star) => (
-                            <span key={star} className="text-xs">★</span>
-                          ))}
-                        </div>
-                        <span className="text-[10px] text-gray-500 font-medium">(50+)</span>
-                      </div>
+                      ) : (
+                        <>
+                          <div className="flex items-baseline gap-2">
+                            <span className="text-xl font-bold text-gray-900">
+                              €{product.price?.toFixed(2) || '0.00'}
+                            </span>
+                            {product.compare_price && (
+                              <span className="text-sm text-gray-400 line-through">
+                                €{product.compare_price.toFixed(2)}
+                              </span>
+                            )}
+                          </div>
+                          {/* Reviews Inline with Price */}
+                          <div className="flex items-center gap-1">
+                            <div className="flex text-yellow-400">
+                              <Check size={12} className="hidden" />
+                              {[1, 2, 3, 4, 5].map((star) => (
+                                <span key={star} className="text-xs">★</span>
+                              ))}
+                            </div>
+                            <span className="text-[10px] text-gray-500 font-medium">(50+)</span>
+                          </div>
+                        </>
+                      )}
                     </div>
                   </div>
 
-                  <button
-                    onClick={() => handleAddToCart(product)}
-                    disabled={product.stock === 0}
-                    className="h-10 w-10 flex items-center justify-center bg-gray-900 text-white rounded-full shadow-md active:scale-95 transition-transform disabled:bg-gray-300"
-                  >
-                    <ShoppingBag className="w-5 h-5" />
-                  </button>
+                  {!product.coming_soon && (
+                    <button
+                      onClick={() => handleAddToCart(product)}
+                      disabled={product.stock === 0}
+                      className="h-10 w-10 flex items-center justify-center bg-gray-900 text-white rounded-full shadow-md active:scale-95 transition-transform disabled:bg-gray-300"
+                    >
+                      <ShoppingBag className="w-5 h-5" />
+                    </button>
+                  )}
                 </div>
 
                 {/* Mobile: USPs (Restored, Centered) */}
@@ -291,32 +306,61 @@ const ProductGrid = () => {
 
                 {/* Desktop Price */}
                 <div className="hidden lg:flex items-baseline gap-3">
-                  <span className="text-3xl font-bold text-primary">
-                    €{product.price?.toFixed(2) || '0.00'}
-                  </span>
-                  {product.compare_price && (
-                    <span className="text-xl text-gray-400 line-through">
-                      €{product.compare_price.toFixed(2)}
+                  {product.coming_soon ? (
+                    <span className="text-2xl font-bold text-primary">
+                      Binnenkort beschikbaar
                     </span>
+                  ) : (
+                    <>
+                      <span className="text-3xl font-bold text-primary">
+                        €{product.price?.toFixed(2) || '0.00'}
+                      </span>
+                      {product.compare_price && (
+                        <span className="text-xl text-gray-400 line-through">
+                          €{product.compare_price.toFixed(2)}
+                        </span>
+                      )}
+                    </>
                   )}
                 </div>
 
-                {/* Desktop Reviews Link */}
-                <a
-                  href="https://www.google.com/search?q=Bereschoon+Helmond+reviews"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="hidden lg:flex items-center gap-2 group w-fit"
-                >
-                  <div className="flex gap-0.5">
-                    {[1, 2, 3, 4, 5].map((star) => (
-                      <span key={star} className="text-yellow-400 text-sm">★</span>
-                    ))}
-                  </div>
-                  <span className="text-sm text-gray-500 group-hover:text-primary transition-colors border-b border-gray-200 group-hover:border-primary">
-                    Al meer dan 50+ Google reviews
-                  </span>
-                </a>
+                {/* Desktop Reviews */}
+                {(() => {
+                  const reviews = product.reviews || [];
+                  const avgRating = reviews.length > 0
+                    ? reviews.reduce((acc, r) => acc + (r.rating || 0), 0) / reviews.length
+                    : 0;
+
+                  return reviews.length > 0 ? (
+                    <Link
+                      to={`/winkel/product/${product.slug}`}
+                      className="hidden lg:flex items-center gap-2 group w-fit"
+                    >
+                      <div className="flex gap-0.5">
+                        {[1, 2, 3, 4, 5].map((star) => (
+                          <span
+                            key={star}
+                            className={star <= Math.round(avgRating) ? "text-yellow-400 text-sm" : "text-gray-300 text-sm"}
+                          >
+                            ★
+                          </span>
+                        ))}
+                      </div>
+                      <span className="text-sm text-gray-500 group-hover:text-primary transition-colors border-b border-gray-200 group-hover:border-primary">
+                        {reviews.length} {reviews.length === 1 ? 'review' : 'reviews'}
+                      </span>
+                    </Link>
+                  ) : (
+                    <div className="hidden lg:flex items-center gap-2 text-gray-400 text-sm">
+                      <div className="flex gap-0.5">
+                        {[1, 2, 3, 4, 5].map((star) => (
+                          <span key={star} className="text-gray-300 text-sm">★</span>
+                        ))}
+                      </div>
+                      <span>Nog geen reviews</span>
+                    </div>
+                  );
+                })()}
 
                 {/* Description */}
                 {product.short_description && (
@@ -341,20 +385,32 @@ const ProductGrid = () => {
 
                 {/* Desktop: Actions */}
                 <div className="hidden lg:flex flex-col sm:flex-row gap-4 pt-4">
-                  <button
-                    onClick={() => handleAddToCart(product)}
-                    disabled={product.stock === 0}
-                    className="flex-1 bg-gray-900 text-white px-8 py-4 rounded-xl font-bold hover:bg-primary transition-all flex items-center justify-center gap-2 shadow-lg disabled:bg-gray-300 disabled:cursor-not-allowed"
-                  >
-                    <ShoppingBag className="w-5 h-5" />
-                    {product.stock === 0 ? 'Uitverkocht' : 'In Winkelmandje'}
-                  </button>
-                  <Link
-                    to={`/winkel/product/${product.slug}`}
-                    className="px-8 py-4 rounded-xl font-medium border-2 border-gray-200 hover:border-primary hover:text-primary transition-colors text-center"
-                  >
-                    Meer Info
-                  </Link>
+                  {product.coming_soon ? (
+                    <Link
+                      to={`/winkel/product/${product.slug}`}
+                      className="flex-1 bg-primary text-white px-8 py-4 rounded-xl font-bold hover:bg-primary/90 transition-all flex items-center justify-center gap-2 shadow-lg"
+                    >
+                      <Clock className="w-5 h-5" />
+                      Bekijk Product
+                    </Link>
+                  ) : (
+                    <>
+                      <button
+                        onClick={() => handleAddToCart(product)}
+                        disabled={product.stock === 0}
+                        className="flex-1 bg-gray-900 text-white px-8 py-4 rounded-xl font-bold hover:bg-primary transition-all flex items-center justify-center gap-2 shadow-lg disabled:bg-gray-300 disabled:cursor-not-allowed"
+                      >
+                        <ShoppingBag className="w-5 h-5" />
+                        {product.stock === 0 ? 'Uitverkocht' : 'In Winkelmandje'}
+                      </button>
+                      <Link
+                        to={`/winkel/product/${product.slug}`}
+                        className="px-8 py-4 rounded-xl font-medium border-2 border-gray-200 hover:border-primary hover:text-primary transition-colors text-center"
+                      >
+                        Meer Info
+                      </Link>
+                    </>
+                  )}
                 </div>
 
                 {/* Mobile: Link to detail (Ghost Button style) */}

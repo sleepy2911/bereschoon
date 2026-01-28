@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { Routes, Route, Link, useLocation, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { 
-  Package, ShoppingCart, Settings, ArrowLeft, Plus, 
+import {
+  Package, ShoppingCart, Settings, ArrowLeft, Plus,
   Edit, Trash2, Loader2, AlertCircle, Search, Eye, EyeOff,
-  Upload, X, GripVertical, Save, Image as ImageIcon
+  Upload, X, GripVertical, Save, Image as ImageIcon, Clock
 } from 'lucide-react';
 import PageTransition from '../../components/PageTransition';
 import SEO from '../../components/SEO';
@@ -75,19 +75,18 @@ const AdminLayout = ({ children }) => {
             <nav className="flex gap-1 overflow-x-auto">
               {navItems.map(item => {
                 const Icon = item.icon;
-                const isActive = item.exact 
-                  ? location.pathname === item.path 
+                const isActive = item.exact
+                  ? location.pathname === item.path
                   : location.pathname.startsWith(item.path);
-                
+
                 return (
                   <Link
                     key={item.path}
                     to={item.path}
-                    className={`flex items-center gap-2 px-4 py-3 border-b-2 font-medium transition-colors whitespace-nowrap ${
-                      isActive
-                        ? 'border-primary text-primary'
-                        : 'border-transparent text-gray-500 hover:text-gray-700'
-                    }`}
+                    className={`flex items-center gap-2 px-4 py-3 border-b-2 font-medium transition-colors whitespace-nowrap ${isActive
+                      ? 'border-primary text-primary'
+                      : 'border-transparent text-gray-500 hover:text-gray-700'
+                      }`}
                   >
                     <Icon className="w-4 h-4" />
                     {item.label}
@@ -145,7 +144,7 @@ const ProductsList = () => {
         .eq('id', product.id);
 
       if (error) throw error;
-      setProducts(products.map(p => 
+      setProducts(products.map(p =>
         p.id === product.id ? { ...p, active: !p.active } : p
       ));
     } catch (err) {
@@ -269,11 +268,10 @@ const ProductsList = () => {
                     <td className="px-6 py-4">
                       <button
                         onClick={() => toggleActive(product)}
-                        className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-sm font-medium transition-colors ${
-                          product.active
-                            ? 'bg-green-100 text-green-700 hover:bg-green-200'
-                            : 'bg-gray-100 text-gray-500 hover:bg-gray-200'
-                        }`}
+                        className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-sm font-medium transition-colors ${product.active
+                          ? 'bg-green-100 text-green-700 hover:bg-green-200'
+                          : 'bg-gray-100 text-gray-500 hover:bg-gray-200'
+                          }`}
                       >
                         {product.active ? <Eye className="w-3.5 h-3.5" /> : <EyeOff className="w-3.5 h-3.5" />}
                         {product.active ? 'Actief' : 'Inactief'}
@@ -328,6 +326,7 @@ const ProductForm = () => {
     stock: '0',
     active: true,
     featured: false,
+    coming_soon: false,
     features: [],
     images: [],
     video_url: '',
@@ -353,7 +352,7 @@ const ProductForm = () => {
         .single();
 
       if (error) throw error;
-      
+
       setFormData({
         ...data,
         price: data.price.toString(),
@@ -361,7 +360,8 @@ const ProductForm = () => {
         stock: data.stock.toString(),
         weight: data.weight?.toString() || '',
         features: data.features || [],
-        images: data.images || []
+        images: data.images || [],
+        coming_soon: data.coming_soon || false
       });
     } catch (err) {
       console.error('Error fetching product:', err);
@@ -380,7 +380,7 @@ const ProductForm = () => {
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
-    
+
     setFormData(prev => ({
       ...prev,
       [name]: type === 'checkbox' ? checked : value
@@ -460,6 +460,7 @@ const ProductForm = () => {
         stock: parseInt(formData.stock),
         active: formData.active,
         featured: formData.featured,
+        coming_soon: formData.coming_soon,
         features: formData.features,
         images: formData.images,
         video_url: formData.video_url || null,
@@ -527,7 +528,7 @@ const ProductForm = () => {
         {/* Basic Info */}
         <div className="bg-white rounded-2xl p-6 shadow-sm">
           <h3 className="text-lg font-bold mb-4">Basisinformatie</h3>
-          
+
           <div className="grid md:grid-cols-2 gap-4">
             <div className="md:col-span-2">
               <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -631,7 +632,7 @@ const ProductForm = () => {
         {/* Pricing */}
         <div className="bg-white rounded-2xl p-6 shadow-sm">
           <h3 className="text-lg font-bold mb-4">Prijs & Voorraad</h3>
-          
+
           <div className="grid md:grid-cols-3 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -681,7 +682,7 @@ const ProductForm = () => {
             </div>
           </div>
 
-          <div className="flex gap-6 mt-4">
+          <div className="flex flex-wrap gap-6 mt-4">
             <label className="flex items-center gap-2 cursor-pointer">
               <input
                 type="checkbox"
@@ -703,13 +704,27 @@ const ProductForm = () => {
               />
               <span>Uitgelicht</span>
             </label>
+
+            <label className="flex items-center gap-2 cursor-pointer">
+              <input
+                type="checkbox"
+                name="coming_soon"
+                checked={formData.coming_soon}
+                onChange={handleChange}
+                className="w-5 h-5 rounded border-gray-300 text-primary focus:ring-primary"
+              />
+              <span className="flex items-center gap-1.5">
+                <Clock className="w-4 h-4 text-primary" />
+                Coming Soon
+              </span>
+            </label>
           </div>
         </div>
 
         {/* Features */}
         <div className="bg-white rounded-2xl p-6 shadow-sm">
           <h3 className="text-lg font-bold mb-4">Productkenmerken</h3>
-          
+
           <div className="flex gap-2 mb-4">
             <input
               type="text"
@@ -748,7 +763,7 @@ const ProductForm = () => {
         {/* Images */}
         <div className="bg-white rounded-2xl p-6 shadow-sm">
           <h3 className="text-lg font-bold mb-4">Afbeeldingen</h3>
-          
+
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
             {formData.images.map((image, index) => (
               <div key={index} className="relative aspect-square bg-gray-100 rounded-xl overflow-hidden group">
@@ -973,7 +988,7 @@ const AdminSettings = () => {
   return (
     <div>
       <h2 className="text-2xl font-bold mb-6">Instellingen</h2>
-      
+
       <div className="bg-white rounded-2xl p-6 shadow-sm">
         <p className="text-gray-500">
           Hier komen de instellingen voor de webshop (verzendkosten, etc.)

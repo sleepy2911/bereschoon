@@ -265,12 +265,17 @@ const ProductDetail = () => {
 
                 {/* Badges */}
                 <div className="absolute top-4 left-4 flex flex-col gap-2">
-                  {product.featured && (
+                  {product.coming_soon && (
+                    <span className="bg-primary/90 text-white text-sm font-bold px-4 py-1.5 rounded-full">
+                      Binnenkort Beschikbaar
+                    </span>
+                  )}
+                  {product.featured && !product.coming_soon && (
                     <span className="bg-primary text-white text-sm font-bold px-4 py-1.5 rounded-full">
                       Nieuw
                     </span>
                   )}
-                  {discountPercentage && (
+                  {discountPercentage && !product.coming_soon && (
                     <span className="bg-red-500 text-white text-sm font-bold px-4 py-1.5 rounded-full">
                       -{discountPercentage}%
                     </span>
@@ -326,22 +331,30 @@ const ProductDetail = () => {
 
               {/* Mobile: Price + Quick Add Row */}
               <div className="flex md:hidden items-center justify-between mb-4">
-                <div className="flex items-baseline gap-2">
-                  <span className="text-3xl font-bold text-primary">
-                    €{product.price?.toFixed(2) || '0.00'}
+                {product.coming_soon ? (
+                  <span className="text-xl font-bold text-primary">
+                    Binnenkort beschikbaar
                   </span>
-                  {product.compare_price && (
-                    <span className="text-lg text-gray-400 line-through">
-                      €{product.compare_price.toFixed(2)}
-                    </span>
-                  )}
-                </div>
-                <button
-                  onClick={handleQuickAdd}
-                  className="bg-primary text-white w-12 h-12 rounded-xl flex items-center justify-center shadow-lg active:scale-95 transition-transform"
-                >
-                  <ShoppingBag className="w-6 h-6" />
-                </button>
+                ) : (
+                  <>
+                    <div className="flex items-baseline gap-2">
+                      <span className="text-3xl font-bold text-primary">
+                        €{product.price?.toFixed(2) || '0.00'}
+                      </span>
+                      {product.compare_price && (
+                        <span className="text-lg text-gray-400 line-through">
+                          €{product.compare_price.toFixed(2)}
+                        </span>
+                      )}
+                    </div>
+                    <button
+                      onClick={handleQuickAdd}
+                      className="bg-primary text-white w-12 h-12 rounded-xl flex items-center justify-center shadow-lg active:scale-95 transition-transform"
+                    >
+                      <ShoppingBag className="w-6 h-6" />
+                    </button>
+                  </>
+                )}
               </div>
 
               {/* Mobile: Reviews */}
@@ -363,13 +376,21 @@ const ProductDetail = () => {
 
               {/* Desktop: Price */}
               <div className="hidden md:flex items-baseline gap-3 mb-4">
-                <span className="text-3xl font-bold text-primary">
-                  €{product.price?.toFixed(2) || '0.00'}
-                </span>
-                {product.compare_price && (
-                  <span className="text-xl text-gray-400 line-through">
-                    €{product.compare_price.toFixed(2)}
+                {product.coming_soon ? (
+                  <span className="text-2xl font-bold text-primary">
+                    Binnenkort beschikbaar
                   </span>
+                ) : (
+                  <>
+                    <span className="text-3xl font-bold text-primary">
+                      €{product.price?.toFixed(2) || '0.00'}
+                    </span>
+                    {product.compare_price && (
+                      <span className="text-xl text-gray-400 line-through">
+                        €{product.compare_price.toFixed(2)}
+                      </span>
+                    )}
+                  </>
                 )}
               </div>
 
@@ -412,40 +433,52 @@ const ProductDetail = () => {
 
               {/* Desktop: Quantity & Add to Cart */}
               <div className="hidden md:block pt-6 border-t space-y-4">
-                <div className="flex items-center gap-4">
-                  <span className="text-gray-700 font-medium">Aantal:</span>
-                  <div className="flex items-center gap-3 bg-gray-100 rounded-xl p-1">
-                    <button
-                      onClick={() => setQuantity(q => Math.max(1, q - 1))}
-                      className="w-10 h-10 flex items-center justify-center hover:bg-white rounded-lg transition-colors"
-                    >
-                      <Minus className="w-4 h-4" />
-                    </button>
-                    <span className="w-12 text-center font-bold text-lg">{quantity}</span>
-                    <button
-                      onClick={() => setQuantity(q => q + 1)}
-                      className="w-10 h-10 flex items-center justify-center hover:bg-white rounded-lg transition-colors"
-                    >
-                      <Plus className="w-4 h-4" />
-                    </button>
+                {product.coming_soon ? (
+                  <div className="bg-lime-50 border border-primary/30 rounded-xl p-6 text-center">
+                    <Clock className="w-10 h-10 text-primary mx-auto mb-3" />
+                    <h3 className="text-lg font-bold text-gray-800 mb-2">Binnenkort Beschikbaar</h3>
+                    <p className="text-gray-600 text-sm">
+                      Dit product is momenteel nog niet beschikbaar voor aankoop. Bekijk de productinformatie hieronder.
+                    </p>
                   </div>
-                </div>
+                ) : (
+                  <>
+                    <div className="flex items-center gap-4">
+                      <span className="text-gray-700 font-medium">Aantal:</span>
+                      <div className="flex items-center gap-3 bg-gray-100 rounded-xl p-1">
+                        <button
+                          onClick={() => setQuantity(q => Math.max(1, q - 1))}
+                          className="w-10 h-10 flex items-center justify-center hover:bg-white rounded-lg transition-colors"
+                        >
+                          <Minus className="w-4 h-4" />
+                        </button>
+                        <span className="w-12 text-center font-bold text-lg">{quantity}</span>
+                        <button
+                          onClick={() => setQuantity(q => q + 1)}
+                          className="w-10 h-10 flex items-center justify-center hover:bg-white rounded-lg transition-colors"
+                        >
+                          <Plus className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </div>
 
-                <motion.button
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  onClick={handleAddToCart}
-                  disabled={product.stock === 0}
-                  className="w-full bg-primary text-white py-4 rounded-xl font-bold text-lg flex items-center justify-center gap-3 hover:bg-primary/90 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed shadow-lg shadow-primary/20"
-                >
-                  <ShoppingBag className="w-6 h-6" />
-                  {product.stock === 0 ? 'Uitverkocht' : 'In Winkelmandje'}
-                </motion.button>
+                    <motion.button
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      onClick={handleAddToCart}
+                      disabled={product.stock === 0}
+                      className="w-full bg-primary text-white py-4 rounded-xl font-bold text-lg flex items-center justify-center gap-3 hover:bg-primary/90 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed shadow-lg shadow-primary/20"
+                    >
+                      <ShoppingBag className="w-6 h-6" />
+                      {product.stock === 0 ? 'Uitverkocht' : 'In Winkelmandje'}
+                    </motion.button>
 
-                {product.stock !== undefined && product.stock <= 5 && product.stock > 0 && (
-                  <p className="text-center text-orange-500 text-sm">
-                    ⚠️ Nog maar {product.stock} op voorraad
-                  </p>
+                    {product.stock !== undefined && product.stock <= 5 && product.stock > 0 && (
+                      <p className="text-center text-orange-500 text-sm">
+                        ⚠️ Nog maar {product.stock} op voorraad
+                      </p>
+                    )}
+                  </>
                 )}
               </div>
 

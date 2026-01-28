@@ -14,8 +14,8 @@ const Onkruidbeheersing = () => {
     // Structured data voor deze pagina
     const faqSchema = generateFAQSchema(SERVICE_FAQ_DATA);
     const serviceSchema = generateServiceSchema({
-        name: 'Onkruidbeheersing',
-        description: 'Professionele onkruidbeheersing voor uw tuin en bestrating. Milieuvriendelijk en effectief onderhoud het hele jaar door.',
+        name: 'Zakelijke Onkruidbeheersing',
+        description: 'Professionele onkruidbeheersing voor bedrijven en zakelijke terreinen. Milieuvriendelijk en effectief onderhoud het hele jaar door.',
         type: 'Onkruidbeheersing',
         url: '/onkruidbeheersing',
         image: '/images/hero/onkruid/hero-onkruid1.webp'
@@ -27,8 +27,8 @@ const Onkruidbeheersing = () => {
     return (
         <PageTransition>
             <SEO
-                title="Onkruidbeheersing"
-                description="Professionele onkruidbeheersing voor uw tuin en bestrating. Milieuvriendelijk en effectief."
+                title="Zakelijke Onkruidbeheersing"
+                description="Professionele onkruidbeheersing voor bedrijven. Milieuvriendelijk en effectief."
                 keywords="onkruidbeheersing, onkruid verwijderen, tuinonderhoud, bestrating schoonmaken"
                 structuredData={combinedSchema.length === 1 ? combinedSchema[0] : combinedSchema}
                 breadcrumbs={[
@@ -38,9 +38,9 @@ const Onkruidbeheersing = () => {
             />
             {/* Hero Section */}
             <ServiceHero
-                title="Onkruidbeheersing"
+                title="Zakelijke Onkruidbeheersing"
                 subtitle="Professioneel Onderhoud"
-                description="Houd uw tuin, terras en oprit onkruidvrij met onze professionele onkruidbeheersingsplannen. Regelmatig onderhoud voor een verzorgde uitstraling het hele jaar door."
+                description="Houd uw bedrijfsterrein, parkeerplaats of buitenruimte onkruidvrij met onze professionele onkruidbeheersingsplannen. Speciaal voor zakelijke klanten bieden wij regelmatig onderhoud voor een verzorgde uitstraling."
                 images={[
                     '/images/hero/onkruid/hero-onkruid1.webp',
                     '/images/hero/onkruid/hero-onkruid2.webp',

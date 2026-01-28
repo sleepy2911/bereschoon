@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { 
+import {
   ShoppingBag, CreditCard, Truck, Lock, User, ChevronRight,
   ChevronDown, Loader2, AlertCircle, UserPlus, Package, Clock, ArrowLeft
 } from 'lucide-react';
@@ -75,7 +75,7 @@ const Checkout = () => {
       ...prev,
       [name]: value
     }));
-    
+
     // If country changes, fetch new carriers
     if (name === 'country') {
       fetchCarriers(value);
@@ -87,9 +87,9 @@ const Checkout = () => {
     try {
       const { data, error } = await supabase
         .rpc('get_available_carriers', { country: countryCode });
-      
+
       if (error) throw error;
-      
+
       setAvailableCarriers(data || []);
       // Auto-select cheapest carrier (DHL)
       if (data && data.length > 0) {
@@ -97,10 +97,9 @@ const Checkout = () => {
       }
     } catch (err) {
       console.error('Error fetching carriers:', err);
-      // Fallback to default carriers
+      // Fallback to DHL only
       const fallbackCarriers = [
-        { carrier_code: 'dhl', carrier_name: 'DHL', flat_rate: 5.95, delivery_time: '1-2 werkdagen', free_shipping_threshold: 50 },
-        { carrier_code: 'postnl', carrier_name: 'PostNL', flat_rate: 6.95, delivery_time: '1-2 werkdagen', free_shipping_threshold: 50 }
+        { carrier_code: 'dhl', carrier_name: 'DHL', flat_rate: 5.95, delivery_time: '1-2 werkdagen', free_shipping_threshold: 50 }
       ];
       setAvailableCarriers(fallbackCarriers);
       setSelectedCarrier(fallbackCarriers[0]);
@@ -115,21 +114,21 @@ const Checkout = () => {
 
   // Calculate totals
   const { subtotal } = getCartSummary();
-  
+
   // Use carrier-specific free shipping threshold (default to 50 if not set)
   const freeShippingThreshold = selectedCarrier?.free_shipping_threshold || FREE_SHIPPING_THRESHOLD;
-  
+
   // Calculate shipping cost: free if above threshold, otherwise carrier's flat rate
   const shippingCost = selectedCarrier && subtotal >= freeShippingThreshold
-    ? 0 
+    ? 0
     : (selectedCarrier?.flat_rate || 0);
-    
+
   const total = subtotal + shippingCost;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError(null);
-    
+
     // Client-side validation with specific messages
     if (items.length === 0) {
       setError('Je winkelmandje is leeg. Voeg eerst producten toe.');
@@ -172,7 +171,7 @@ const Checkout = () => {
     }
 
     if (!selectedCarrier) {
-      setError('Selecteer een verzendmethode (DHL of PostNL)');
+      setError('Selecteer een verzendmethode');
       return;
     }
 
@@ -224,10 +223,10 @@ const Checkout = () => {
       // Check for errors in response
       if (response.error) {
         console.error('Function invoke error:', response.error);
-        
+
         // The error details are often in response.data when there's an error
         let errorDetail = 'Onbekende fout';
-        
+
         if (response.data?.error) {
           errorDetail = response.data.error;
         } else if (response.error?.message) {
@@ -235,7 +234,7 @@ const Checkout = () => {
         } else if (typeof response.data === 'string') {
           errorDetail = response.data;
         }
-        
+
         // Also check error context
         if (response.error?.context?.body) {
           try {
@@ -245,7 +244,7 @@ const Checkout = () => {
             // ignore
           }
         }
-        
+
         console.error('Error detail extracted:', errorDetail);
         throw new Error(errorDetail);
       }
@@ -272,10 +271,10 @@ const Checkout = () => {
       console.error('Error message:', err?.message);
       console.error('Error context:', err?.context);
       console.error('Error context body:', err?.context?.body);
-      
+
       // Extract the most useful error message
       let errorMessage = 'Er ging iets mis bij het afrekenen';
-      
+
       // Try different error formats
       if (err?.context?.body) {
         console.log('Parsing error body...');
@@ -291,9 +290,9 @@ const Checkout = () => {
       } else if (err?.message) {
         errorMessage = err.message;
       }
-      
+
       console.error('Final error message:', errorMessage);
-      
+
       // Make error message user-friendly but keep original for debugging
       let displayError = errorMessage;
       if (errorMessage.includes('MOLLIE_API_KEY niet geconfigureerd')) {
@@ -301,7 +300,7 @@ const Checkout = () => {
       } else if (errorMessage.includes('Supabase configuratie')) {
         displayError = '⚠️ Database configuratie fout. Neem contact op met support.';
       }
-      
+
       setError(displayError);
       setLoading(false);
     }
@@ -560,19 +559,17 @@ const Checkout = () => {
                         whileHover={{ scale: 1.02 }}
                         whileTap={{ scale: 0.98 }}
                         onClick={() => setSelectedCarrier(carrier)}
-                        className={`p-4 border-2 rounded-xl cursor-pointer transition-all ${
-                          selectedCarrier?.carrier_code === carrier.carrier_code
+                        className={`p-4 border-2 rounded-xl cursor-pointer transition-all ${selectedCarrier?.carrier_code === carrier.carrier_code
                             ? 'border-primary bg-primary/5'
                             : 'border-gray-200 hover:border-primary/50'
-                        }`}
+                          }`}
                       >
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-4">
-                            <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
-                              selectedCarrier?.carrier_code === carrier.carrier_code
+                            <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${selectedCarrier?.carrier_code === carrier.carrier_code
                                 ? 'border-primary bg-primary'
                                 : 'border-gray-300'
-                            }`}>
+                              }`}>
                               {selectedCarrier?.carrier_code === carrier.carrier_code && (
                                 <div className="w-2 h-2 bg-white rounded-full" />
                               )}

@@ -9,6 +9,7 @@ import AnnouncementBanner from './components/AnnouncementBanner';
 import CookieConsent from './components/CookieConsent';
 import Footer from './components/Footer';
 import StructuredData from './components/StructuredData';
+import WhatsAppButton from './components/WhatsAppButton';
 import Home from './pages/Home';
 import Configurator from './pages/Configurator';
 import Contact from './pages/Contact';
@@ -123,6 +124,7 @@ const MainLayout = () => {
       <CookieConsent />
       <CartSidebar />
       <NotificationToast />
+      <WhatsAppButton />
     </>
   );
 };
