@@ -47,6 +47,7 @@ serve(async (req) => {
     const serviceType = formData.get('service_type') as string;
     const name = formData.get('name') as string;
     const email = formData.get('email') as string;
+    const companyName = formData.get('company_name') as string | null;
     const phone = formData.get('phone') as string;
     const streetAddress = formData.get('street_address') as string;
     const postcode = formData.get('postcode') as string;
@@ -156,6 +157,7 @@ serve(async (req) => {
             service_type: serviceType,
             name,
             email,
+            company_name: companyName || null,
             phone,
             street_address: streetAddress,
             postcode,

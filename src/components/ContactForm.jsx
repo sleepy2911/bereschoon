@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, ArrowLeft, Check, Loader2, Mail, Grid3X3, Home, Droplets, Leaf, Upload, X, Camera, User, Phone, MapPin, MessageSquare } from 'lucide-react';
+import { ArrowRight, ArrowLeft, Check, Loader2, Mail, Grid3X3, Home, Droplets, Leaf, Upload, X, Camera, User, Phone, MapPin, MessageSquare, Building } from 'lucide-react';
 
 const ContactForm = ({ preselectedService = null }) => {
     const [step, setStep] = useState(preselectedService ? 2 : 1);
@@ -12,6 +12,7 @@ const ContactForm = ({ preselectedService = null }) => {
     const [formData, setFormData] = useState({
         vierkanteMeters: '',
         naam: '',
+        bedrijfsnaam: '',
         email: '',
         telefoon: '',
         adres: '',
@@ -28,7 +29,7 @@ const ContactForm = ({ preselectedService = null }) => {
     const services = [
         { id: 'oprit-terras-terrein', label: 'Oprit, Terras of Terreinreiniging', icon: Grid3X3, category: 'oprit-terras-terrein' },
         { id: 'gevelreiniging', label: 'Gevelreiniging', icon: Home, category: 'gevelreiniging' },
-        { id: 'onkruidbeheersing', label: 'Onkruidbeheersing', icon: Leaf, category: 'onkruidbeheersing' }
+        { id: 'onkruidbeheersing', label: 'Onkruidbeheersing', labelSuffix: '(zakelijk)', icon: Leaf, category: 'onkruidbeheersing' }
     ];
 
     const opritTerrasTerreinOptions = [
@@ -217,6 +218,7 @@ const ContactForm = ({ preselectedService = null }) => {
             formDataToSend.append('service_type', selectedService);
             formDataToSend.append('name', formData.naam);
             formDataToSend.append('email', formData.email);
+            if (formData.bedrijfsnaam) formDataToSend.append('company_name', formData.bedrijfsnaam);
             if (formData.telefoon) formDataToSend.append('phone', formData.telefoon);
             if (addressParts.street) formDataToSend.append('street_address', addressParts.street);
             if (addressParts.postcode) formDataToSend.append('postcode', addressParts.postcode);
@@ -310,6 +312,7 @@ const ContactForm = ({ preselectedService = null }) => {
                         setFormData({
                             vierkanteMeters: '',
                             naam: '',
+                            bedrijfsnaam: '',
                             email: '',
                             telefoon: '',
                             adres: '',
@@ -393,7 +396,12 @@ const ContactForm = ({ preselectedService = null }) => {
                                             <Check className="text-primary" size={24} />
                                         )}
                                     </div>
-                                    <h4 className="text-sm md:text-lg font-bold text-foreground text-left">{service.label}</h4>
+                                    <h4 className="text-sm md:text-lg font-bold text-foreground text-left">
+                                        {service.label}
+                                        {service.labelSuffix && (
+                                            <span className="text-gray-400 font-normal ml-1">{service.labelSuffix}</span>
+                                        )}
+                                    </h4>
                                 </button>
                             );
                         })}
@@ -634,6 +642,24 @@ const ContactForm = ({ preselectedService = null }) => {
                                     value={formData.naam}
                                     onChange={handleInputChange}
                                     placeholder="Volledige naam"
+                                    className="w-full pl-12 pr-4 py-3 md:py-4 border border-gray-200 rounded-lg focus:outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all text-base placeholder:text-muted-foreground/60"
+                                />
+                            </div>
+                        </div>
+
+                        <div>
+                            <label htmlFor="bedrijfsnaam" className="block text-sm font-medium text-foreground mb-2">
+                                Bedrijfsnaam <span className="text-gray-400 text-sm">(optioneel)</span>
+                            </label>
+                            <div className="relative">
+                                <Building className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
+                                <input
+                                    type="text"
+                                    id="bedrijfsnaam"
+                                    name="bedrijfsnaam"
+                                    value={formData.bedrijfsnaam}
+                                    onChange={handleInputChange}
+                                    placeholder="Naam van uw bedrijf"
                                     className="w-full pl-12 pr-4 py-3 md:py-4 border border-gray-200 rounded-lg focus:outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all text-base placeholder:text-muted-foreground/60"
                                 />
                             </div>

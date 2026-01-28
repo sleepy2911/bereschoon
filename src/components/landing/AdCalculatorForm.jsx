@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { ArrowRight, ArrowLeft, Check, Loader2, Grid3X3, Home, Leaf, Upload, User, AlertCircle, ChevronRight, Mail, Phone, MapPin } from 'lucide-react';
+import { ArrowRight, ArrowLeft, Check, Loader2, Grid3X3, Home, Leaf, Upload, User, AlertCircle, ChevronRight, Mail, Phone, MapPin, Building } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -15,6 +15,7 @@ const AdCalculatorForm = () => {
     const [formData, setFormData] = useState({
         vierkanteMeters: '',
         naam: '',
+        bedrijfsnaam: '',
         email: '',
         telefoon: '',
         adres: '',
@@ -31,7 +32,7 @@ const AdCalculatorForm = () => {
     const services = [
         { id: 'oprit-terras-terrein', label: 'Oprit, Terras of Terrein', icon: Grid3X3, desc: 'Complete reiniging van uw bestrating' },
         { id: 'gevelreiniging', label: 'Gevelreiniging', icon: Home, desc: 'Herstel de uitstraling van uw woning' },
-        { id: 'onkruidbeheersing', label: 'Onkruidbeheersing', icon: Leaf, desc: 'Effectieve en duurzame bestrijding' }
+        { id: 'onkruidbeheersing', label: 'Onkruidbeheersing', labelSuffix: '(zakelijk)', icon: Leaf, desc: 'Effectieve en duurzame bestrijding' }
     ];
 
     const opritOptions = [
@@ -89,6 +90,7 @@ const AdCalculatorForm = () => {
             formDataToSend.append('service_type', selectedService);
             formDataToSend.append('name', formData.naam);
             formDataToSend.append('email', formData.email);
+            if (formData.bedrijfsnaam) formDataToSend.append('company_name', formData.bedrijfsnaam);
             formDataToSend.append('phone', formData.telefoon);
             formDataToSend.append('street_address', formData.adres); // Keep simple as per previous iteration logic
 
@@ -206,7 +208,12 @@ const AdCalculatorForm = () => {
                                     <s.icon className="w-8 h-8" />
                                 </div>
                                 <div className="ml-6 flex-grow">
-                                    <div className="font-bold text-xl text-stone-900 mb-1">{s.label}</div>
+                                    <div className="font-bold text-xl text-stone-900 mb-1">
+                                        {s.label}
+                                        {s.labelSuffix && (
+                                            <span className="text-stone-400 font-normal text-base ml-1">{s.labelSuffix}</span>
+                                        )}
+                                    </div>
                                     <div className="text-sm text-stone-500 font-medium group-hover:text-primary/70">{s.desc}</div>
                                 </div>
                                 <div className={`w-12 h-12 rounded-full flex items-center justify-center transition-all ${selectedService === s.id ? 'bg-primary text-white' : 'bg-stone-100 text-stone-400 group-hover:bg-primary group-hover:text-white'}`}>
@@ -340,6 +347,10 @@ const AdCalculatorForm = () => {
                                 <Mail className="absolute left-5 top-1/2 -translate-y-1/2 text-stone-400 group-focus-within:text-primary transition-colors" size={22} />
                                 <input className="w-full pl-14 p-5 border-2 border-stone-200 rounded-xl focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all bg-stone-50 focus:bg-white text-lg" placeholder="Emailadres" type="email" value={formData.email} onChange={e => setFormData({ ...formData, email: e.target.value })} />
                             </div>
+                        </div>
+                        <div className="relative group">
+                            <Building className="absolute left-5 top-1/2 -translate-y-1/2 text-stone-400 group-focus-within:text-primary transition-colors" size={22} />
+                            <input className="w-full pl-14 p-5 border-2 border-stone-200 rounded-xl focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all bg-stone-50 focus:bg-white text-lg" placeholder="Bedrijfsnaam (Optioneel)" value={formData.bedrijfsnaam} onChange={e => setFormData({ ...formData, bedrijfsnaam: e.target.value })} />
                         </div>
                         <div className="relative group">
                             <Phone className="absolute left-5 top-1/2 -translate-y-1/2 text-stone-400 group-focus-within:text-primary transition-colors" size={22} />

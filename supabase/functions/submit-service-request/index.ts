@@ -37,6 +37,7 @@ serve(async (req) => {
     const serviceType = formData.get('service_type') as string | null;
     const name = formData.get('name') as string;
     const email = formData.get('email') as string;
+    const companyName = formData.get('company_name') as string | null;
     const phone = formData.get('phone') as string | null;
     const streetAddress = formData.get('street_address') as string | null;
     const postcode = formData.get('postcode') as string | null;
@@ -46,7 +47,7 @@ serve(async (req) => {
     const serviceOptions = formData.get('service_options') as string | null;
     const servicePlan = formData.get('service_plan') as string | null;
     
-    addLog(`Step 2: Extracted fields - name: ${name}, email: ${email}, serviceType: ${serviceType}`);
+    addLog(`Step 2: Extracted fields - name: ${name}, email: ${email}, serviceType: ${serviceType}, companyName: ${companyName || 'none'}`);
 
     // Extract all photo files
     const photos: File[] = [];
@@ -165,6 +166,7 @@ serve(async (req) => {
       service_type: serviceType?.trim() || null,
       name: name.trim(),
       email: email.trim().toLowerCase(),
+      company_name: companyName?.trim() || null,
       phone: phone?.trim() || null,
       street_address: streetAddress?.trim() || null,
       postcode: postcode?.trim() || null,

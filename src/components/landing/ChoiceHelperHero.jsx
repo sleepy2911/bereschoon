@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Check, ChevronRight, Star, Shield, Clock, ArrowRight, Upload, Camera, Loader2, AlertCircle } from 'lucide-react';
+import { Check, ChevronRight, Star, Shield, Clock, ArrowRight, Upload, Camera, Loader2, AlertCircle, Building } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { supabase } from '../../lib/supabase';
 
@@ -13,6 +13,7 @@ const ChoiceHelperHero = () => {
         contact: {
             firstName: '',
             lastName: '',
+            companyName: '',
             email: '',
             address: '',
             phone: ''
@@ -61,6 +62,7 @@ const ChoiceHelperHero = () => {
             formData.append('squareMeters', selection.squareMeters);
             formData.append('firstName', selection.contact.firstName);
             formData.append('lastName', selection.contact.lastName);
+            if (selection.contact.companyName) formData.append('company_name', selection.contact.companyName);
             formData.append('email', selection.contact.email);
             formData.append('address', selection.contact.address);
             formData.append('phone', selection.contact.phone);
@@ -90,7 +92,7 @@ const ChoiceHelperHero = () => {
     const services = [
         { id: 'terras', label: 'Oprit, Terras of Terreinreiniging', icon: '▦' },
         { id: 'gevel', label: 'Gevelreiniging', icon: '🏠' },
-        { id: 'onkruid', label: 'Onkruidbeheersing', icon: '🍃' }
+        { id: 'onkruid', label: 'Onkruidbeheersing', labelSuffix: '(zakelijk)', icon: '🍃' }
     ];
 
     return (
@@ -202,7 +204,12 @@ const ChoiceHelperHero = () => {
                                                 >
                                                     <div className="text-2xl mt-1">{s.icon}</div>
                                                     <div>
-                                                        <div className="font-bold group-hover:text-primary transition-colors">{s.label}</div>
+                                                        <div className="font-bold group-hover:text-primary transition-colors">
+                                                            {s.label}
+                                                            {s.labelSuffix && (
+                                                                <span className="text-gray-400 font-normal ml-1">{s.labelSuffix}</span>
+                                                            )}
+                                                        </div>
                                                         <div className="text-xs text-gray-500 mt-1">Specialistische reiniging door vakmensen</div>
                                                     </div>
                                                 </button>
@@ -351,6 +358,16 @@ const ChoiceHelperHero = () => {
                                                     className="w-full bg-gray-50 border border-gray-200 rounded-lg px-4 py-3 focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
                                                     value={selection.contact.lastName}
                                                     onChange={e => setSelection(prev => ({ ...prev, contact: { ...prev.contact, lastName: e.target.value } }))}
+                                                />
+                                            </div>
+                                            <div className="relative">
+                                                <Building className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+                                                <input
+                                                    type="text"
+                                                    placeholder="Bedrijfsnaam (optioneel)"
+                                                    className="w-full bg-gray-50 border border-gray-200 rounded-lg pl-12 pr-4 py-3 focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
+                                                    value={selection.contact.companyName}
+                                                    onChange={e => setSelection(prev => ({ ...prev, contact: { ...prev.contact, companyName: e.target.value } }))}
                                                 />
                                             </div>
                                             <input
