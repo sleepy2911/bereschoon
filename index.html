@@ -1,47 +1,117 @@
 <!doctype html>
 <html lang="nl">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    
-    <!-- Favicon -->
-    <link rel="icon" type="image/png" href="/images/logo.png" />
-    <link rel="apple-touch-icon" href="/images/logo.png" />
-    
-    <!-- Primary Meta Tags -->
-    <title>Bereschoon - Professionele Reinigingsdiensten | Oprit, Gevel & Terras</title>
-    <meta name="title" content="Bereschoon - Professionele Reinigingsdiensten | Oprit, Gevel & Terras" />
-    <meta name="description" content="Bereschoon biedt uitzonderlijke schoonmaakdiensten voor uw oprit, gevel, terras en meer. Professioneel, efficiënt en milieubewust. Vraag nu een offerte aan!" />
-    <meta name="keywords" content="reiniging, oprit reiniging, gevelreiniging, terras reiniging, softwash, hoge druk reiniging, bereschoon, professionele schoonmaak" />
-    <meta name="author" content="Bereschoon" />
-    <meta name="robots" content="index, follow" />
-    <meta name="language" content="Dutch" />
-    
-    <!-- Open Graph / Facebook -->
-    <meta property="og:type" content="website" />
-    <meta property="og:url" content="https://bereschoon.nl/" />
-    <meta property="og:title" content="Bereschoon - Professionele Reinigingsdiensten" />
-    <meta property="og:description" content="Uitzonderlijke schoonmaakdiensten voor uw oprit, gevel, terras en meer. Professioneel, efficiënt en milieubewust." />
-    <meta property="og:image" content="/images/logo.png" />
-    <meta property="og:locale" content="nl_NL" />
-    <meta property="og:site_name" content="Bereschoon" />
-    
-    <!-- Twitter -->
-    <meta property="twitter:card" content="summary_large_image" />
-    <meta property="twitter:url" content="https://bereschoon.nl/" />
-    <meta property="twitter:title" content="Bereschoon - Professionele Reinigingsdiensten" />
-    <meta property="twitter:description" content="Uitzonderlijke schoonmaakdiensten voor uw oprit, gevel, terras en meer. Professioneel, efficiënt en milieubewust." />
-    <meta property="twitter:image" content="/images/logo.png" />
-    
-    <!-- Theme Color -->
-    <meta name="theme-color" content="#84CC16" />
-    
-    <!-- Preconnect for performance -->
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.jsx"></script>
-  </body>
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- Favicons -->
+  <!-- Favicons (bulletproof: absolute + relative) -->
+  <link rel="icon" type="image/png" href="https://bereschoon.nl/favicon.png" sizes="any">
+  <link rel="icon" type="image/png" href="/favicon.png" sizes="any">
+
+  <link rel="apple-touch-icon" href="https://bereschoon.nl/favicon.png">
+  <link rel="apple-touch-icon" href="/favicon.png">
+
+  <!-- Preconnect for performance -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preconnect" href="https://www.googletagmanager.com">
+  <!-- Font CSS loaded async; preload removed to avoid "preloaded but not used" warning -->
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap" rel="stylesheet" media="print"
+    onload="this.media='all'">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"
+    media="print" onload="this.media='all'">
+  <noscript>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  </noscript>
+
+  <!-- Primary Meta Tags -->
+  <title>Bereschoon | Renovatie &amp; Interieur</title>
+  <meta name="title" content="Bereschoon | Renovatie &amp; Interieur" />
+  <meta name="description"
+    content="Bereschoon is uw specialist voor renovatie, interieur en schoonmaak. Bekijk onze projecten en webshop." />
+  <meta name="keywords" content="Renovatie, Interieur, Schoonmaak, Webshop, Bereschoon, Maatwerk" />
+  <meta name="author" content="Bereschoon" />
+  <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+  <meta name="googlebot" content="index, follow" />
+  <link rel="canonical" href="https://bereschoon.nl/" />
+
+  <!-- GEO / Language -->
+  <meta name="geo.region" content="NL" />
+  <meta name="geo.placename" content="Netherlands" />
+  <meta name="language" content="nl" />
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://bereschoon.nl/" />
+  <meta property="og:title" content="Bereschoon | Renovatie &amp; Interieur" />
+  <meta property="og:description"
+    content="Bereschoon is uw specialist voor renovatie, interieur en schoonmaak. Bekijk onze projecten en webshop." />
+  <meta property="og:locale" content="nl_NL" />
+  <meta property="og:site_name" content="Bereschoon" />
+
+  <!-- Twitter -->
+  <meta property="twitter:card" content="summary_large_image" />
+  <meta property="twitter:url" content="https://bereschoon.nl/" />
+  <meta property="twitter:title" content="Bereschoon | Renovatie &amp; Interieur" />
+  <meta property="twitter:description"
+    content="Bereschoon is uw specialist voor renovatie, interieur en schoonmaak. Bekijk onze projecten en webshop." />
+
+  <!-- Structured Data (JSON-LD) - Organization -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Organization",
+        "@id": "https://bereschoon.nl/#organization",
+        "name": "Bereschoon",
+        "url": "https://bereschoon.nl",
+        "description": "Bereschoon - Renovatie & Interieur Specialist",
+        "address": {
+          "@type": "PostalAddress",
+          "streetAddress": "Netherlands",
+          "addressLocality": "Amsterdam", 
+          "addressCountry": "NL"
+        },
+        "areaServed": [
+          { "@type": "Country", "name": "Netherlands" },
+          { "@type": "Country", "name": "Belgium" }
+        ]
+      },
+      {
+        "@type": "WebSite",
+        "@id": "https://bereschoon.nl/#website",
+        "url": "https://bereschoon.nl",
+        "name": "Bereschoon",
+        "description": "Renovatie & Interieur",
+        "publisher": { "@id": "https://bereschoon.nl/#organization" },
+        "inLanguage": ["nl"]
+      }
+    ]
+  }
+  </script>
+</head>
+
+<body>
+  <div id="root"></div>
+  <script type="module" src="/src/main.jsx"></script>
+  <!-- Google tag (gtag.js) - loaded after page load to avoid blocking critical path -->
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag() { dataLayer.push(arguments); }
+    function loadGtag() {
+      var s = document.createElement('script');
+      s.async = true;
+      s.src = 'https://www.googletagmanager.com/gtag/js?id=G-3CE46DY521';
+      document.head.appendChild(s);
+      gtag('js', new Date());
+      gtag('config', 'G-3CE46DY521');
+    }
+    if (document.readyState === 'complete') loadGtag(); else window.addEventListener('load', loadGtag);
+  </script>
+</body>
+
 </html>
